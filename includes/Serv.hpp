@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/15 12:17:17 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:04:26 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,21 @@
 #include <list>
 #include <algorithm>
 #include <ctime>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 class Serv {
     private:
         int _port;
         std::string _pass;
+        int _socketfd;
+        int _epollfd;
         int isValidPort( const std::string& port ) const;
         void isValidPass( const std::string& pass ) const;
     public:
         Serv( char **arg );
         ~Serv( void );
+        void run( void );
         class FormatException : public std::exception
         {
             public:
