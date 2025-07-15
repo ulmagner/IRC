@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 10:41:18 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/15 12:20:04 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/15 14:23:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ int main( int ac, char **av ) {
         return (1);
     try {
         Serv S(av);
+        S.run();
     }
     catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
