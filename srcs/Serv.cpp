@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/17 12:21:39 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/17 14:02:59 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ void Serv::run( void ) {
                 fcntl(clientSocket, F_SETFL, O_NONBLOCK);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = clientSocket;
-                this->_connections.push_back(ev.data.fd);
-                if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, events[n].data.fd, &ev) == -1) {
+                this->_connections.push_back(clientSocket);
+                if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &ev) == -1) {
                     perror("epoll_ctl: clientSocket");
                     exit(EXIT_FAILURE);
                 }
