@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/17 14:02:59 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:56:51 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,54 @@ void Serv::createTcpServerSocket( void ) {
     listen(this->_socketfd, 10);
 }
 
+void Serv::shutdown( void ) {
+    std::vector<int>::const_iterator it = this->_connections.begin();
+    for (; it != this->_connections.end(); ++it) {
+        if (*it != this->_socketfd) {
+            close(*it);
+        }
+    }
+    delete this->_cmd;
+    close(this->_socketfd);
+}
+
+ACmd*	Serv::pass( std::vector<std::string> tokens ) const
+{
+	return (new PassCmd(tokens));
+}
+
+ACmd* Serv::getCmd( char* buffer ) const {
+	std::string levels[] = {"PASS"};
+
+	std::stringstream ss(buffer);
+    std::string word;
+    std::vector<std::string> tokens;
+
+    while (ss >> word) {
+        tokens.push_back(word);
+    }
+
+	ACmd* (Serv::*cmds[])( std::vector<std::string> ) const = {
+		&Serv::pass,
+	};
+
+	for (int i = 0; i < 1; i++) {
+		if (levels[i].compare( tokens[0] ) == 0) {
+			std::cout << "Serv creates " << levels[i] << std::endl;
+			return (this->*cmds[i])(tokens);
+		}
+	}
+
+    throw Serv::CmdNotFoundException();
+    return (NULL);
+}
+
 void Serv::run( void ) {
     createTcpServerSocket();
     fcntl(this->_socketfd, F_SETFL, O_NONBLOCK);
     struct epoll_event ev, events[MAX_EVENTS];
-    this->_connections.push_back(this->_socketfd);
     int nfds, clientSocket;
+    this->_connections.push_back(this->_socketfd);
     this->_epollfd = epoll_create1(0);
     if (this->_epollfd == -1) {
         perror("epoll_create1");
@@ -72,17 +114,43 @@ void Serv::run( void ) {
                 this->_connections.push_back(clientSocket);
                 if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &ev) == -1) {
                     perror("epoll_ctl: clientSocket");
-                    exit(EXIT_FAILURE);
+                    // exit(EXIT_FAILURE);
+                    continue ;
                 }
+                std::cout << "CLIENT CONNECTED" << std::endl;
             }
             else {
                 char buffer[MAX_EVENTS] = {0};
-                recv(events[n].data.fd, buffer, sizeof(buffer), 0);
-                std::cout << "Message from client: " << buffer << std::endl;
+                ssize_t bytes = recv(events[n].data.fd, buffer, sizeof(buffer), 0);
+                if (!bytes) {
+                    std::cout << "Server closed connection." << std::endl;
+                    close(events[n].data.fd);
+                    epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, events[n].data.fd, NULL);
+                    this->_connections.erase(
+                        std::remove(this->_connections.begin(), this->_connections.end(), events[n].data.fd),
+                        this->_connections.end());
+                }
+                else if (bytes < 0) {
+                    std::cout << "Client " << events[n].data.fd << " disconnected." << std::endl;
+                    close(events[n].data.fd);
+                    epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, events[n].data.fd, NULL);
+                    this->_connections.erase(
+                        std::remove(this->_connections.begin(), this->_connections.end(), events[n].data.fd),
+                        this->_connections.end());
+                }
+                else {
+                    std::cout << "Message from client: " << buffer << std::endl;
+                    try {
+                        this->_cmd = Serv::getCmd(buffer);
+                        this->_cmd->executeCmd();
+                    }
+                    catch (const std::exception& e) {
+                        std::cout << e.what() << std::endl;
+                    }
+                }
             }
         }
     }
-    close(this->_socketfd);
 }
 
 int Serv::isValidPort( const std::string& port ) const {
@@ -106,4 +174,9 @@ void Serv::isValidPass( const std::string& pass ) const {
 const char* Serv::FormatException::what() const throw()
 {
     return ("Error");
+}
+
+const char* Serv::CmdNotFoundException::what() const throw()
+{
+    return ("CMD NOT FOUND.");
 }

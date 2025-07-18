@@ -6,13 +6,13 @@
 #    By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/30 11:17:47 by ulmagner          #+#    #+#              #
-#    Updated: 2025/07/15 11:57:54 by ulmagner         ###   ########.fr        #
+#    Updated: 2025/07/18 16:05:18 by ulmagner         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= ircserv
-SRCS		= main.cpp Serv.cpp
-INCS		= Serv.hpp
+SRCS		= main.cpp Serv.cpp ACmd.cpp PassCmd.cpp
+INCS		= Serv.hpp ACmd.hpp PassCmd.hpp
 
 SDIRS		= srcs
 IDIRS		= includes

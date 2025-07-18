@@ -6,29 +6,18 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/17 12:21:35 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:23:54 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef Serv_hpp
 #define Serv_hpp
-#define MAX_EVENTS 1024
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <exception>
-#include <deque>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <ctime>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/epoll.h>
+#include "ACmd.hpp"
+#include "PassCmd.hpp"
+
+class ACmd;
+class PassCmd;
 
 class Serv {
     private:
@@ -37,13 +26,17 @@ class Serv {
         int _socketfd;
         int _epollfd;
         std::vector<int> _connections;
+        ACmd* _cmd;
         int isValidPort( const std::string& port ) const;
         void isValidPass( const std::string& pass ) const;
         void createTcpServerSocket( void );
     public:
         Serv( char **arg );
         ~Serv( void );
+        void shutdown( void );
         void run( void );
+        ACmd* pass( std::vector<std::string> tokens ) const;
+        ACmd* getCmd( char* buffer ) const;
         class FormatException : public std::exception
         {
             public:
@@ -54,6 +47,13 @@ class Serv {
             public:
                 virtual const char* what() const throw();
         };
+        class CmdNotFoundException : public std::exception
+        {
+            public:
+                virtual const char* what() const throw();
+        };
 };
+
+extern Serv* g_serv;
 
 #endif //Serv_hpp
