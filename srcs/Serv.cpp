@@ -6,13 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/18 16:56:51 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/18 17:57:42 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Serv.hpp"
 
-Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0) {
+Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0), _cmd(NULL) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -34,14 +34,19 @@ void Serv::createTcpServerSocket( void ) {
 }
 
 void Serv::shutdown( void ) {
+    std::cout << this->_connections.size() << std::endl;
     std::vector<int>::const_iterator it = this->_connections.begin();
     for (; it != this->_connections.end(); ++it) {
-        if (*it != this->_socketfd) {
+        if (*it != this->_socketfd && *it != -1) {
             close(*it);
         }
     }
-    delete this->_cmd;
-    close(this->_socketfd);
+    if (this->_cmd)
+        delete this->_cmd;
+    if (this->_epollfd != -1)
+        close(this->_epollfd);
+    if (this->_socketfd != -1)
+        close(this->_socketfd);
 }
 
 ACmd*	Serv::pass( std::vector<std::string> tokens ) const

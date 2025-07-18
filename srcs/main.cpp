@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 10:41:18 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/18 17:38:58 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/18 17:43:13 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ int main( int ac, char **av ) {
     if (ac != 3)
         return (1);
     try {
-        signal(SIGINT, signalHandler);
         Serv S(av);
         g_serv = &S;
+        signal(SIGINT, signalHandler);
         S.run();
     }
     catch (const std::exception& e) {
