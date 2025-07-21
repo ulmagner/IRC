@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/18 16:13:51 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/21 13:52:58 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,23 @@
 #define PassCmd_hpp
 #include "ACmd.hpp"
 
-class ACmd;
+class Serv;
+class Client;
 
 class PassCmd : public ACmd {
     private:
 		std::string _PassCmdRef;
-        // std::vector<std::string&> _PassCmd;
-		// std::vector<void(*)()> _PassCmds;
+        Serv& _serv;
         PassCmd( void );
     public:
-        PassCmd( std::vector<std::string> tokens );
+        PassCmd( std::vector<std::string> tokens, Serv& serv );
         ~PassCmd( void );
-        void executeCmd() const;
+        void executeCmd( Client& client ) const;
+        class FormatException : public std::exception
+        {
+            public:
+                virtual const char* what() const throw();
+        };
 };
 
 #endif //PassCmd_hpp

@@ -6,13 +6,14 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/18 17:57:42 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/21 15:38:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Serv.hpp"
+#include "PassCmd.hpp"
 
-Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0), _cmd(NULL) {
+Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -35,26 +36,33 @@ void Serv::createTcpServerSocket( void ) {
 
 void Serv::shutdown( void ) {
     std::cout << this->_connections.size() << std::endl;
-    std::vector<int>::const_iterator it = this->_connections.begin();
+    std::map<int, Client>::const_iterator it = this->_connections.begin();
     for (; it != this->_connections.end(); ++it) {
-        if (*it != this->_socketfd && *it != -1) {
-            close(*it);
+        int fd = it->second.getFd();
+        if (fd != this->_socketfd && fd != -1) {
+            close(fd);
+            fd = -1;
         }
     }
-    if (this->_cmd)
-        delete this->_cmd;
+    this->_connections.clear();
     if (this->_epollfd != -1)
         close(this->_epollfd);
     if (this->_socketfd != -1)
         close(this->_socketfd);
+    this->_epollfd = -1;
+    this->_socketfd = -1;
 }
 
-ACmd*	Serv::pass( std::vector<std::string> tokens ) const
+ACmd*	Serv::pass( std::vector<std::string> tokens )
 {
-	return (new PassCmd(tokens));
+	return (new PassCmd(tokens, *this));
 }
 
-ACmd* Serv::getCmd( char* buffer ) const {
+const std::string& Serv::getPass( void ) const {
+	return (this->_pass);
+}
+
+ACmd* Serv::getCmd( char* buffer ) {
 	std::string levels[] = {"PASS"};
 
 	std::stringstream ss(buffer);
@@ -65,13 +73,12 @@ ACmd* Serv::getCmd( char* buffer ) const {
         tokens.push_back(word);
     }
 
-	ACmd* (Serv::*cmds[])( std::vector<std::string> ) const = {
+	ACmd* (Serv::*cmds[])( std::vector<std::string> ) = {
 		&Serv::pass,
 	};
 
 	for (int i = 0; i < 1; i++) {
 		if (levels[i].compare( tokens[0] ) == 0) {
-			std::cout << "Serv creates " << levels[i] << std::endl;
 			return (this->*cmds[i])(tokens);
 		}
 	}
@@ -80,12 +87,20 @@ ACmd* Serv::getCmd( char* buffer ) const {
     return (NULL);
 }
 
+Client& Serv::getClientByFd( int fd ) {
+    for (std::map<int, Client>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it) {
+        if (it->first == fd)
+            return (it->second);
+    }
+    throw Serv::ErrorException();
+}
+
 void Serv::run( void ) {
     createTcpServerSocket();
     fcntl(this->_socketfd, F_SETFL, O_NONBLOCK);
     struct epoll_event ev, events[MAX_EVENTS];
     int nfds, clientSocket;
-    this->_connections.push_back(this->_socketfd);
+    this->_connections.insert(std::make_pair(this->_socketfd, Client(this->_socketfd)));
     this->_epollfd = epoll_create1(0);
     if (this->_epollfd == -1) {
         perror("epoll_create1");
@@ -103,7 +118,6 @@ void Serv::run( void ) {
             perror("epoll_wait");
             exit(EXIT_FAILURE);
         }
-
         for (int n = 0; n < nfds; ++n) {
             if (events[n].data.fd == this->_socketfd) {
                 sockaddr_in clientAddr;
@@ -116,7 +130,7 @@ void Serv::run( void ) {
                 fcntl(clientSocket, F_SETFL, O_NONBLOCK);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = clientSocket;
-                this->_connections.push_back(clientSocket);
+                this->_connections.insert(std::make_pair(clientSocket, Client(clientSocket)));
                 if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &ev) == -1) {
                     perror("epoll_ctl: clientSocket");
                     // exit(EXIT_FAILURE);
@@ -131,27 +145,27 @@ void Serv::run( void ) {
                     std::cout << "Server closed connection." << std::endl;
                     close(events[n].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, events[n].data.fd, NULL);
-                    this->_connections.erase(
-                        std::remove(this->_connections.begin(), this->_connections.end(), events[n].data.fd),
-                        this->_connections.end());
+                    this->_connections.erase(events[n].data.fd);
                 }
                 else if (bytes < 0) {
                     std::cout << "Client " << events[n].data.fd << " disconnected." << std::endl;
                     close(events[n].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, events[n].data.fd, NULL);
-                    this->_connections.erase(
-                        std::remove(this->_connections.begin(), this->_connections.end(), events[n].data.fd),
-                        this->_connections.end());
+                    this->_connections.erase(events[n].data.fd);
                 }
                 else {
                     std::cout << "Message from client: " << buffer << std::endl;
+                    ACmd* cmd = NULL;
                     try {
-                        this->_cmd = Serv::getCmd(buffer);
-                        this->_cmd->executeCmd();
+                        Client& client = this->getClientByFd(events[n].data.fd);
+                        cmd = Serv::getCmd(buffer);
+                        cmd->executeCmd(client);
+                        std::cout << client.getPass() << std::endl;
                     }
                     catch (const std::exception& e) {
                         std::cout << e.what() << std::endl;
                     }
+                    delete cmd;
                 }
             }
         }
@@ -177,6 +191,11 @@ void Serv::isValidPass( const std::string& pass ) const {
 }
 
 const char* Serv::FormatException::what() const throw()
+{
+    return ("Error");
+}
+
+const char* Serv::ErrorException::what() const throw()
 {
     return ("Error");
 }
