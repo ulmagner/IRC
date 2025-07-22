@@ -6,12 +6,15 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/21 15:38:49 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 11:34:51 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Serv.hpp"
 #include "PassCmd.hpp"
+#include "NickCmd.hpp"
+#include "UserCmd.hpp"
+#include "JoinCmd.hpp"
 
 Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -58,12 +61,31 @@ ACmd*	Serv::pass( std::vector<std::string> tokens )
 	return (new PassCmd(tokens, *this));
 }
 
+ACmd*	Serv::nick( std::vector<std::string> tokens )
+{
+	return (new NickCmd(tokens, *this));
+}
+
+ACmd*	Serv::user( std::vector<std::string> tokens )
+{
+	return (new UserCmd(tokens, *this));
+}
+
+ACmd*	Serv::join( std::vector<std::string> tokens )
+{
+	return (new JoinCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
 
-ACmd* Serv::getCmd( char* buffer ) {
-	std::string levels[] = {"PASS"};
+const std::map<int, Client>& Serv::getConnections( void ) const {
+    return (this->_connections);
+}
+
+ACmd* Serv::getCmd( char* buffer, Client& client ) {
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN"};
 
 	std::stringstream ss(buffer);
     std::string word;
@@ -75,14 +97,30 @@ ACmd* Serv::getCmd( char* buffer ) {
 
 	ACmd* (Serv::*cmds[])( std::vector<std::string> ) = {
 		&Serv::pass,
+        &Serv::nick,
+        &Serv::user,
+        &Serv::join,
 	};
 
-	for (int i = 0; i < 1; i++) {
-		if (levels[i].compare( tokens[0] ) == 0) {
-			return (this->*cmds[i])(tokens);
-		}
-	}
-
+    if (!client.getAuth()) {
+        for (int i = 0; i < 3; i++) {
+            if (auth[i].compare( tokens[0] ) == 0) {
+                return (this->*cmds[i])(tokens);
+            }
+        }
+    }
+    std::cout << client.getAuth() << std::endl;
+    for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
+        if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
+            throw Serv::NotAuthYetException();
+        }
+        if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
+            throw Serv::AlreadyAuthenticateException();
+        }
+        else if (auth[i].compare( tokens[0] ) == 0) {
+            return (this->*cmds[i])(tokens);
+        }
+    }
     throw Serv::CmdNotFoundException();
     return (NULL);
 }
@@ -136,7 +174,6 @@ void Serv::run( void ) {
                     // exit(EXIT_FAILURE);
                     continue ;
                 }
-                std::cout << "CLIENT CONNECTED" << std::endl;
             }
             else {
                 char buffer[MAX_EVENTS] = {0};
@@ -158,9 +195,10 @@ void Serv::run( void ) {
                     ACmd* cmd = NULL;
                     try {
                         Client& client = this->getClientByFd(events[n].data.fd);
-                        cmd = Serv::getCmd(buffer);
+                        cmd = Serv::getCmd(buffer, client);
                         cmd->executeCmd(client);
-                        std::cout << client.getPass() << std::endl;
+                        if (!client.getAuth())
+                            client.setAuth(client.checkAuth());
                     }
                     catch (const std::exception& e) {
                         std::cout << e.what() << std::endl;
@@ -203,4 +241,14 @@ const char* Serv::ErrorException::what() const throw()
 const char* Serv::CmdNotFoundException::what() const throw()
 {
     return ("CMD NOT FOUND.");
+}
+
+const char* Serv::AlreadyAuthenticateException::what() const throw()
+{
+    return ("CLIENT ALREADY AUTHENTICATE.");
+}
+
+const char* Serv::NotAuthYetException::what() const throw()
+{
+    return ("CLIENT NOT AUTHENTICATE YET.");
 }

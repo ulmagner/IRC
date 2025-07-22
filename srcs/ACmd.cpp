@@ -15,3 +15,8 @@
 ACmd::ACmd( std::string& ACmdref ) : _ACmdRef(ACmdref) {}
 
 ACmd::~ACmd( void ) {}
+
+const char* ACmd::ErrorException::what() const throw()
+{
+    return ("Error");
+}

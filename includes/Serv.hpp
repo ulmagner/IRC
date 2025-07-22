@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/21 14:39:16 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 10:16:31 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 
 class Serv {
     friend class PassCmd;
+    friend class NickCmd;
+    friend class UserCmd;
     private:
         int _port;
         std::string _pass;
@@ -35,8 +37,12 @@ class Serv {
         void shutdown( void );
         void run( void );
         const std::string& getPass( void ) const;
+        const std::map<int, Client>& getConnections() const;
         ACmd* pass( std::vector<std::string> tokens );
-        ACmd* getCmd( char* buffer );
+        ACmd* nick( std::vector<std::string> tokens );
+        ACmd* user( std::vector<std::string> tokens );
+        ACmd* join( std::vector<std::string> tokens );
+        ACmd* getCmd( char* buffer, Client& client );
         Client& getClientByFd( int fd );
         class FormatException : public std::exception
         {
@@ -49,6 +55,16 @@ class Serv {
                 virtual const char* what() const throw();
         };
         class CmdNotFoundException : public std::exception
+        {
+            public:
+                virtual const char* what() const throw();
+        };
+        class AlreadyAuthenticateException : public std::exception
+        {
+            public:
+                virtual const char* what() const throw();
+        };
+        class NotAuthYetException : public std::exception
         {
             public:
                 virtual const char* what() const throw();

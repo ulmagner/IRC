@@ -6,14 +6,18 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/21 15:10:54 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 11:10:08 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PassCmd.hpp"
 #include "Serv.hpp"
 
-PassCmd::PassCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _PassCmdRef(tokens[1]), _serv(serv) {}
+PassCmd::PassCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _PassCmdRef(""), _serv(serv) {
+	if (tokens.size() > 1 && !tokens[1].empty()) {
+		this->_PassCmdRef = tokens[1];
+	}
+}
 
 PassCmd::~PassCmd( void ) {}
 
