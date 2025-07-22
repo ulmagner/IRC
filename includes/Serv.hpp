@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 10:16:31 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 14:36:03 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <exception>
 #include "ACmd.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 
 class Serv {
     friend class PassCmd;
@@ -28,6 +29,7 @@ class Serv {
         int _socketfd;
         int _epollfd;
         std::map<int, Client> _connections;
+        std::vector<Channel> _channels;
         int isValidPort( const std::string& port ) const;
         void isValidPass( const std::string& pass ) const;
         void createTcpServerSocket( void );
@@ -38,6 +40,7 @@ class Serv {
         void run( void );
         const std::string& getPass( void ) const;
         const std::map<int, Client>& getConnections() const;
+        const std::vector<Channel>& getChannels() const;
         ACmd* pass( std::vector<std::string> tokens );
         ACmd* nick( std::vector<std::string> tokens );
         ACmd* user( std::vector<std::string> tokens );

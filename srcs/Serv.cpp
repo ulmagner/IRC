@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 11:34:51 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 16:07:27 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,14 @@ const std::map<int, Client>& Serv::getConnections( void ) const {
     return (this->_connections);
 }
 
+const std::vector<Channel>& Serv::getChannels( void ) const {
+    return (this->_channels);
+}
+
 ACmd* Serv::getCmd( char* buffer, Client& client ) {
 	std::string auth[] = {"PASS", "NICK", "USER", "JOIN"};
 
-	std::stringstream ss(buffer);
+    std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
 
@@ -105,16 +109,21 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
     if (!client.getAuth()) {
         for (int i = 0; i < 3; i++) {
             if (auth[i].compare( tokens[0] ) == 0) {
+                std::cout << "]]]]]]]]]" << std::endl;
                 return (this->*cmds[i])(tokens);
             }
         }
     }
+    std::cout << ",,,,,,," << std::endl;
     std::cout << client.getAuth() << std::endl;
+    std::cout << "........" << std::endl;
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
+            std::cout << "!!!!!!!" << std::endl;
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
+            std::cout << "?????????" << std::endl;
             throw Serv::AlreadyAuthenticateException();
         }
         else if (auth[i].compare( tokens[0] ) == 0) {

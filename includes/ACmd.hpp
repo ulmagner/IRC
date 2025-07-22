@@ -40,7 +40,7 @@ class ACmd {
     public:
         ACmd( std::string& ACmd );
         virtual ~ACmd( void );
-        virtual void executeCmd( Client& client ) const = 0;
+        virtual void executeCmd( Client& client ) = 0;
         class FormatException : public std::exception
         {
             public:
