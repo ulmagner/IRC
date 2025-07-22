@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 10:29:58 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 16:27:17 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Client::Client( int fd ) : _fd(fd), _user(""), _nick(""), _host(""), _real(""), 
 
 Client::~Client( void ) {}
 
-void Client::setPath( const std::string& attPath ) {
+void Client::setPass( const std::string& attPath ) {
 	this->_pass = attPath;
 }
 

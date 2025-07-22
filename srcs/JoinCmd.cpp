@@ -6,37 +6,37 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 11:11:48 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/22 16:47:47 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "JoinCmd.hpp"
 #include "Serv.hpp"
 
-JoinCmd::JoinCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _JoinCmdRef(""), _serv(serv) {
-	if (tokens.size() > 1 && !tokens[1].empty()) {
-		this->_JoinCmdRef = tokens[1];
+JoinCmd::JoinCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _tokens(tokens), _serv(serv) {
+	if (tokens.size() < 2) {
+		throw JoinCmd::FormatException();
 	}
 }
 
 JoinCmd::~JoinCmd( void ) {}
 
-void JoinCmd::executeCmd( Client& client ) const {
+void JoinCmd::executeCmd( Client& client ) {
 	(void) client;
-	// if (!client.getPass().empty())
-	// 	throw JoinCmd::ErrorException();
-	// client.setNick(_JoinCmdRef);
-    // std::map<int, Client>::const_iterator it = this->_serv.getConnections().begin();
-    // for (; it != this->_serv.getConnections().end(); ++it) {
-    //     if (!it->second.getNick().empty() && it->first != client.getFd() && !it->second.getNick().compare(_JoinCmdRef)) {
-	// 		client.setPath("");
-	// 		throw JoinCmd::ErrorException();
+	for (size_t i = 0; i < this->_tokens.size(); ++i) {
+		std::cout << this->_tokens[i] << std::endl;
+	}
+	// std::vector<Channel>::const_iterator it = this->_serv.getChannels().begin();
+	// for (;it != this->_serv.getChannels().end(); ++it) {
+	// 	for (size_t i = 0; i < this->_serv.getChannels().size(); ++i) {
+	// 		if (it->getName() == this->_tokens[1]) {
+	// 			;
+	// 		}
 	// 	}
-    // }
-	// std::cout << "Serv creates " << ACmd::_ACmdRef << std::endl;
+	// }
 }
 
 const char* JoinCmd::FormatException::what() const throw()
 {
-    return ("WRONG PASS");
+	return ("JOIN FORMAT");
 }

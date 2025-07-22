@@ -1,43 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:27:24 by ulmagner         ###   ########.fr       */
+/*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
+/*   Updated: 2025/07/22 14:07:31 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef Client_hpp
-#define Client_hpp
+#ifndef Channel_hpp
+#define Channel_hpp
 #include <string>
 #include <exception>
 #include <iostream>
+#include <map>
+#include "Client.hpp"
 
-class Client {
+class Channel {
     private:
-        int _fd;
-        std::string _user;
-        std::string _nick;
-        std::string _host;
-        std::string _real;
-        std::string _pass;
-		bool _isAuth;
+		std::string _name;
+		std::string _key;
+        std::map<int, Client> _clientConnected;
     public:
-        Client( int fd );
-        ~Client( void );
+        Channel( std::string& name, std::string& key, Client& client );
+        ~Channel( void );
 		int getFd( void ) const;
-		const std::string& getNick( void ) const;
-		const std::string& getUser( void ) const;
-		const std::string& getPass( void ) const;
-		const bool& getAuth( void ) const;
-		void setPass( const std::string& attPath );
-		void setNick( const std::string& attNick );
-		void setUser( const std::string& attUser );
-		void setAuth( bool attAuth );
-		bool checkAuth( void );
+		const std::string& getName( void ) const;
+		const std::string& getKey( void ) const;
+		void setName( const std::string& attPath );
+		void setKey( const std::string& attNick );
         class FormatException : public std::exception
         {
             public:
@@ -55,4 +48,4 @@ class Client {
         };
 };
 
-#endif //Client_hpp
+#endif //Channel_hpp
