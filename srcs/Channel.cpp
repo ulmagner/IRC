@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 14:08:07 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 12:43:41 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@ void Channel::setName( const std::string& attName ) {
 
 void Channel::setKey( const std::string& attKey ) {
 	this->_key = attKey;
+}
+
+void Channel::addClient( Client& client ) {
+	this->_clientConnected.insert(std::make_pair(client.getFd(), client));
 }
 
 const std::string& Channel::getName( void ) const {

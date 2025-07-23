@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:45:10 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 12:59:52 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@ NickCmd::NickCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 NickCmd::~NickCmd( void ) {}
 
 void NickCmd::executeCmd( Client& client ) {
-    std::cout << ",,,,,,," << std::endl;
 	if (client.getPass().empty())
+		throw NickCmd::ErrorException();
+	if (!client.getNick().empty())
 		throw NickCmd::ErrorException();
 	if (this->_tokens.size() == 1)
 		throw NickCmd::FormatException();

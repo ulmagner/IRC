@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:45:01 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 13:01:48 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ PassCmd::PassCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 PassCmd::~PassCmd( void ) {}
 
 void PassCmd::executeCmd( Client& client ) {
+	if (!client.getPass().empty())
+		throw PassCmd::ErrorException();
 	std::string tok = "";
 	if (this->_tokens.size() > 1)
 		tok = this->_tokens[1];

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:16:48 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:45:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 10:36:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 class Serv;
 class Client;
 
-class JoinCmd : public ACmd {
+class JoinCmd : public ACmd{
     private:
 		std::vector<std::string> _tokens;
         Serv& _serv;
