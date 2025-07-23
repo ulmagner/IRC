@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:07:27 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 10:37:52 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ const std::map<int, Client>& Serv::getConnections( void ) const {
     return (this->_connections);
 }
 
-const std::vector<Channel>& Serv::getChannels( void ) const {
+std::vector<Channel>& Serv::getChannels( void ){
     return (this->_channels);
 }
 

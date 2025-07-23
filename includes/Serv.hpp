@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 14:36:03 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 10:37:44 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ class Serv {
         void run( void );
         const std::string& getPass( void ) const;
         const std::map<int, Client>& getConnections() const;
-        const std::vector<Channel>& getChannels() const;
+        std::vector<Channel>& getChannels();
         ACmd* pass( std::vector<std::string> tokens );
         ACmd* nick( std::vector<std::string> tokens );
         ACmd* user( std::vector<std::string> tokens );

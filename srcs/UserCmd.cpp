@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:45:48 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 13:00:13 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ UserCmd::~UserCmd( void ) {}
 
 void UserCmd::executeCmd( Client& client ) {
 	if (client.getPass().empty())
+		throw UserCmd::ErrorException();
+	if (!client.getUser().empty())
 		throw UserCmd::ErrorException();
 	if (this->_tokens.size() == 1)
 		throw UserCmd::FormatException();

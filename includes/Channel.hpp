@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 14:07:31 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 12:42:04 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Channel {
 		const std::string& getKey( void ) const;
 		void setName( const std::string& attPath );
 		void setKey( const std::string& attNick );
+        void addClient( Client& client );
         class FormatException : public std::exception
         {
             public:
