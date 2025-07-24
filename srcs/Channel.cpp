@@ -6,14 +6,15 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/23 12:43:41 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 14:37:37 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
 Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key) {
-	this->_clientConnected.insert(std::make_pair(client.getFd(), client));
+	this->_clientConnected.insert(std::make_pair(1, client));
+	client.setOp(true);
 }
 
 Channel::~Channel( void ) {}
@@ -27,7 +28,7 @@ void Channel::setKey( const std::string& attKey ) {
 }
 
 void Channel::addClient( Client& client ) {
-	this->_clientConnected.insert(std::make_pair(client.getFd(), client));
+	this->_clientConnected.insert(std::make_pair(0, client));
 }
 
 const std::string& Channel::getName( void ) const {

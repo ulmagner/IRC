@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:42:58 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 14:19:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,9 @@ void JoinCmd::executeCmd( Client& client ) {
 void JoinCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = "";
 	if (code == "461")
-		fullMsg = ":" + this->_serv._name + code + " * " + this->_tokens[0] + " " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + this->_tokens[0] + " " + message;
 	else if (code == "475" || "403")
-		fullMsg = ":" + this->_serv._name + code + " * " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + message;
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 

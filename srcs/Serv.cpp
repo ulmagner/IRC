@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:56:40 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 14:32:33 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "NickCmd.hpp"
 #include "UserCmd.hpp"
 #include "JoinCmd.hpp"
+#include "KickCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -25,7 +26,7 @@ Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
 Serv::~Serv( void ) {}
 
 void Serv::createTcpServerSocket( void ) {
-    this->_socketfd = socket(AF_INET, SOCK_STREAM, this->_epollfd);
+    this->_socketfd = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
@@ -76,6 +77,11 @@ ACmd*	Serv::join( std::vector<std::string> tokens )
 	return (new JoinCmd(tokens, *this));
 }
 
+ACmd*	Serv::kick( std::vector<std::string> tokens )
+{
+	return (new KickCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -89,7 +95,7 @@ std::vector<Channel>& Serv::getChannels( void ){
 }
 
 ACmd* Serv::getCmd( char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -105,27 +111,26 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
         &Serv::nick,
         &Serv::user,
         &Serv::join,
+        &Serv::kick,
 	};
 
     if (!client.getAuth()) {
         for (int i = 0; i < 3; i++) {
             if (auth[i].compare( tokens[0] ) == 0) {
-                std::cout << "]]]]]]]]]" << std::endl;
                 return (this->*cmds[i])(tokens);
             }
         }
     }
-    std::cout << ",,,,,,," << std::endl;
     std::cout << client.getAuth() << std::endl;
-    std::cout << "........" << std::endl;
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
-            std::cout << "!!!!!!!" << std::endl;
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
-            std::cout << "?????????" << std::endl;
             throw Serv::AlreadyAuthenticateException();
+        }
+        else if (client.getOp() == false && i >= 4 && auth[i].compare( tokens[0] ) == 0) {
+            throw Serv::NotAnOperatorException();
         }
         else if (auth[i].compare( tokens[0] ) == 0) {
             return (this->*cmds[i])(tokens);
@@ -261,4 +266,9 @@ const char* Serv::AlreadyAuthenticateException::what() const throw()
 const char* Serv::NotAuthYetException::what() const throw()
 {
     return ("CLIENT NOT AUTHENTICATE YET.");
+}
+
+const char* Serv::NotAnOperatorException::what() const throw()
+{
+    return ("NOT AN OPERATOR.");
 }
