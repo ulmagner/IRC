@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:59:38 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 18:36:13 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,5 @@ void PassCmd::sendToClient( Client& client, const std::string& code, const std::
 
 const char* PassCmd::FormatException::what() const throw()
 {
-    return ("WRONG PASS");
+    return ("WRONG PASSs");
 }

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 14:37:37 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 16:10:33 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,10 @@ const std::string& Channel::getName( void ) const {
 
 const std::string& Channel::getKey( void ) const {
 	return (this->_key);
+}
+
+std::map<int, Client>& Channel::getClients( void ) {
+	return (this->_clientConnected);
 }
 
 const char* Channel::FormatException::what() const throw()

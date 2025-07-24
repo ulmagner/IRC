@@ -6,14 +6,14 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:20:08 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 17:43:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef NickCmd_hpp
 #define NickCmd_hpp
-#define ERR_NONICKNAMEGIVEN " :No nickname given\n\r"
-#define ERR_NICKNAMEINUSE " :Nickname is already in use\n\r"
+// #define ERR_NONICKNAMEGIVEN " :No nickname given\n\r"
+// #define ERR_NICKNAMEINUSE " :Nickname is already in use\n\r"
 #include "ACmd.hpp"
 
 class Serv;

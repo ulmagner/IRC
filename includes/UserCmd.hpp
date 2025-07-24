@@ -6,14 +6,14 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:23:07 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 17:43:43 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UserCmd_hpp
 #define UserCmd_hpp
-#define ERR_NEEDMOREPARAMS " :Not enough parameters\n\r"
-#define ERR_ALREADYREGISTERED " :You may not reregister\n\r"
+// #define ERR_NEEDMOREPARAMS " :Not enough parameters\n\r"
+// #define ERR_ALREADYREGISTERED " :You may not reregister\n\r"
 #include "ACmd.hpp"
 
 class Serv;

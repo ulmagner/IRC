@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   KickCmd.cpp                                        :+:      :+:    :+:   */
+/*   InviteCmd.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 17:18:47 by ulmagner         ###   ########.fr       */
+/*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
+/*   Updated: 2025/07/24 17:23:57 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "KickCmd.hpp"
+#include "InviteCmd.hpp"
 #include "Serv.hpp"
 
-KickCmd::KickCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _tokens(tokens), _serv(serv) {}
+InviteCmd::InviteCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _tokens(tokens), _serv(serv) {}
 
-KickCmd::~KickCmd( void ) {}
+InviteCmd::~InviteCmd( void ) {}
 
-void KickCmd::executeCmd( Client& client ) {
+void InviteCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 3 || this->_tokens.size() > 4) {
 		this->sendToClient(client, "461", ERR_NEEDMOREPARAMS);
-		throw KickCmd::FormatException();
+		throw InviteCmd::FormatException();
 	}
 	std::vector<Channel>& channels = this->_serv.getChannels();
 	std::string name = this->_tokens[1];
@@ -33,7 +33,7 @@ void KickCmd::executeCmd( Client& client ) {
 	}
 	if (!channel) {
 		this->sendToClient(client, "403", channel->getName() + " " + ERR_NOSUCHCHANNEL);
-		throw KickCmd::FormatException();
+		throw InviteCmd::FormatException();
 	}
 	std::map<int, Client>& cl = channel->getClients();
 	std::map<int, Client>::iterator it = cl.begin();
@@ -44,30 +44,11 @@ void KickCmd::executeCmd( Client& client ) {
 	}
 	if (!is_i) {
         this->sendToClient(client, "482", channel->getName() + " " + ERR_CHANOPRIVSNEEDED);
-		throw KickCmd::FormatException();
-	}
-	it = cl.begin();
-	std::vector<std::string> cl_name = split(this->_tokens[2], ',');
-	std::vector<std::string>::const_iterator cl_it = cl_name.begin();
-	bool is = false;
-	for (;cl_it != cl_name.end(); ++cl_it) {
-		is = false;
-		for (;it != cl.end(); ++it) {
-			if (*cl_it == it->second.getUser()) {
-				is = true;
-				break ;
-			}
-		}
-		if (!is) {
-			this->sendToClient(client, "441", channel->getName() + " " + ERR_USERNOTINCHANNEL);
-		}
-		else {
-			cl.erase(it);
-		}
+		throw InviteCmd::FormatException();
 	}
 }
 
-void KickCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
+void InviteCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = "";
 	if (code == "461")
 		fullMsg = ":" + this->_serv._name + " " + code + client.getUser() + this->_tokens[0] + " " + message;
@@ -78,7 +59,7 @@ void KickCmd::sendToClient( Client& client, const std::string& code, const std::
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 
-const char* KickCmd::FormatException::what() const throw()
+const char* InviteCmd::FormatException::what() const throw()
 {
-	return ("Kick FORMAT");
+	return ("Invite FORMAT");
 }
