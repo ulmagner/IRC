@@ -41,6 +41,7 @@ class ACmd {
         ACmd( std::string& ACmd );
         virtual ~ACmd( void );
         virtual void executeCmd( Client& client ) = 0;
+        virtual void sendToClient( Client& client, const std::string& code, const std::string& msg ) = 0;
         class FormatException : public std::exception
         {
             public:

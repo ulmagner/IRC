@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/23 10:37:52 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:56:40 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "UserCmd.hpp"
 #include "JoinCmd.hpp"
 
-Serv::Serv( char **arg ) : _socketfd(0), _epollfd(0) {
+Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -90,7 +90,6 @@ std::vector<Channel>& Serv::getChannels( void ){
 
 ACmd* Serv::getCmd( char* buffer, Client& client ) {
 	std::string auth[] = {"PASS", "NICK", "USER", "JOIN"};
-
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -98,7 +97,9 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
     while (ss >> word) {
         tokens.push_back(word);
     }
-
+    if (tokens.empty()) {
+        throw std::runtime_error("Empty command");
+    }
 	ACmd* (Serv::*cmds[])( std::vector<std::string> ) = {
 		&Serv::pass,
         &Serv::nick,

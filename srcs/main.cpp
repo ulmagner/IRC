@@ -6,13 +6,18 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 10:41:18 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/18 17:43:13 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/23 14:56:07 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Serv.hpp"
 
 Serv* g_serv = NULL;
+
+// void sendToClient( int clientFd, const std::string& message ) {
+// 	std::string fullMsg = message + "\r\n";
+// 	send(clientFd, fullMsg.c_str(), fullMsg.size(), 0);
+// }
 
 void signalHandler( int signum ) {
     std::cout << "Interrupt signal (" << signum << ") received.\n";

@@ -6,12 +6,14 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:45:40 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:20:08 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef NickCmd_hpp
 #define NickCmd_hpp
+#define ERR_NONICKNAMEGIVEN " :No nickname given\n\r"
+#define ERR_NICKNAMEINUSE " :Nickname is already in use\n\r"
 #include "ACmd.hpp"
 
 class Serv;
@@ -26,6 +28,7 @@ class NickCmd : public ACmd {
         NickCmd( std::vector<std::string> tokens, Serv& serv );
         ~NickCmd( void );
         void executeCmd( Client& client );
+        void sendToClient( Client& client, const std::string& code, const std::string& msg);
         class FormatException : public std::exception
         {
             public:

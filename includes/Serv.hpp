@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/23 10:37:44 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 10:51:24 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@ class Serv {
     friend class PassCmd;
     friend class NickCmd;
     friend class UserCmd;
+    friend class JoinCmd;
     private:
+        std::string _name;
         int _port;
         std::string _pass;
         int _socketfd;
@@ -75,5 +77,6 @@ class Serv {
 };
 
 extern Serv* g_serv;
+// void sendToClient( int clientFd, const std::string& message );
 
 #endif //Serv_hpp
