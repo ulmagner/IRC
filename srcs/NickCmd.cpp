@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:21:09 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:59:46 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ void NickCmd::executeCmd( Client& client ) {
 void NickCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = "";
 	if (code == "431")
-		fullMsg = ":" + this->_serv._name + code + " * " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + message;
 	else if (code == "433")
-		fullMsg = ":" + this->_serv._name + code + " * " + this->_tokens[1] + " " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + this->_tokens[1] + " " + message;
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 

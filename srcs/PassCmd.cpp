@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:23:20 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:59:38 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ void PassCmd::executeCmd( Client& client ) {
 void PassCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = "";
 	if (code == "461")
-		fullMsg = ":" + this->_serv._name + code + " * " + this->_tokens[0] + " " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + this->_tokens[0] + " " + message;
 	else if (code == "464" || code == "462")
-		fullMsg = ":" + this->_serv._name + code + " * " + message;
+		fullMsg = ":" + this->_serv._name + " " + code + " * " + message;
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 

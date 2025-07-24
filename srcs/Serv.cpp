@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:56:40 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:58:53 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,21 +110,16 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
     if (!client.getAuth()) {
         for (int i = 0; i < 3; i++) {
             if (auth[i].compare( tokens[0] ) == 0) {
-                std::cout << "]]]]]]]]]" << std::endl;
                 return (this->*cmds[i])(tokens);
             }
         }
     }
-    std::cout << ",,,,,,," << std::endl;
     std::cout << client.getAuth() << std::endl;
-    std::cout << "........" << std::endl;
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
-            std::cout << "!!!!!!!" << std::endl;
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
-            std::cout << "?????????" << std::endl;
             throw Serv::AlreadyAuthenticateException();
         }
         else if (auth[i].compare( tokens[0] ) == 0) {
