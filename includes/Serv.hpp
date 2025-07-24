@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 10:51:24 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 14:29:39 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Serv {
     friend class NickCmd;
     friend class UserCmd;
     friend class JoinCmd;
+    friend class KickCmd;
     private:
         std::string _name;
         int _port;
@@ -47,6 +48,7 @@ class Serv {
         ACmd* nick( std::vector<std::string> tokens );
         ACmd* user( std::vector<std::string> tokens );
         ACmd* join( std::vector<std::string> tokens );
+        ACmd* kick( std::vector<std::string> tokens );
         ACmd* getCmd( char* buffer, Client& client );
         Client& getClientByFd( int fd );
         class FormatException : public std::exception
@@ -70,6 +72,11 @@ class Serv {
                 virtual const char* what() const throw();
         };
         class NotAuthYetException : public std::exception
+        {
+            public:
+                virtual const char* what() const throw();
+        };
+        class NotAnOperatorException : public std::exception
         {
             public:
                 virtual const char* what() const throw();

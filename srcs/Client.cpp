@@ -6,13 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/22 16:27:17 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/24 14:11:42 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client( int fd ) : _fd(fd), _user(""), _nick(""), _host(""), _real(""), _pass(""), _isAuth(false) {}
+Client::Client( int fd ) : _fd(fd), _user(""), _nick(""), _host(""), _real(""), _pass(""), _isAuth(false), _operator(false) {}
 
 Client::~Client( void ) {}
 
@@ -50,6 +50,14 @@ const std::string& Client::getUser( void ) const {
 
 const std::string& Client::getPass( void ) const {
 	return (this->_pass);
+}
+
+const bool& Client::getOp( void ) const {
+	return (this->_operator);
+}
+
+void Client::setOp( bool op ) {
+	this->_operator = op;
 }
 
 bool Client::checkAuth( void ) {
