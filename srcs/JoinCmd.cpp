@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 16:07:28 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:43:38 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,9 @@ void JoinCmd::executeCmd( Client& client ) {
 			}
 		}
 		if (channel) {
+			if (channel->getMode("+i") && !channel->getInvite( client.getNick() )) {
+				
+			}
 			if (key != channel->getKey()) {
 				this->sendToClient(client, "475", name + ERR_BADCHANNELKEY);
 				continue ;

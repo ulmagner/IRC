@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 17:23:57 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:34:02 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void InviteCmd::executeCmd( Client& client ) {
 		throw InviteCmd::FormatException();
 	}
 	std::vector<Channel>& channels = this->_serv.getChannels();
-	std::string name = this->_tokens[1];
+	std::string name = this->_tokens[2];
 	Channel* channel = NULL;
 	for (size_t j = 0; j < channels.size(); ++j) {
 		if (name == channels[j].getName()) {
@@ -32,30 +32,64 @@ void InviteCmd::executeCmd( Client& client ) {
 		}
 	}
 	if (!channel) {
-		this->sendToClient(client, "403", channel->getName() + " " + ERR_NOSUCHCHANNEL);
+		this->sendToClient(client, "403", channel->getName() + ERR_NOSUCHCHANNEL);
+		throw InviteCmd::FormatException();
+	}
+	if (channel && channel->getClients().size() < 1) {
+		this->sendToClient(client, "403", channel->getName() + ERR_NOSUCHCHANNEL);
 		throw InviteCmd::FormatException();
 	}
 	std::map<int, Client>& cl = channel->getClients();
 	std::map<int, Client>::iterator it = cl.begin();
-	bool is_i = false;
+	int is_i = 0;
+	Client* toInvite = NULL;
 	for (;it != cl.end(); ++it) {
-		if (it->second.getFd() == client.getFd())
-			is_i = true;
+		if (it->second.getFd() == client.getFd()) {
+			is_i = 1;
+			if (it->first == 1) {
+				is_i = 2;
+			}
+		}
+		if (it->second.getNick() == this->_tokens[1]) {
+			this->sendToClient(client, "443", channel->getName() + ERR_USERONCHANNEL);
+			throw InviteCmd::FormatException();
+		}
 	}
 	if (!is_i) {
-        this->sendToClient(client, "482", channel->getName() + " " + ERR_CHANOPRIVSNEEDED);
+        this->sendToClient(client, "442", channel->getName() + ERR_NOTONCHANNEL);
+	}
+	else if (is_i == 1 && channel->getMode("+i")) {
+        this->sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw InviteCmd::FormatException();
 	}
+	toInvite = this->_serv.getClientByName(this->_tokens[1]);
+	if (!toInvite) {
+		this->sendToClient(client, "401", ERR_NOSUCHNICK);
+		throw InviteCmd::FormatException();
+	}
+	it = cl.begin();
+	for (;it != cl.end(); ++it) {
+		if (toInvite->getNick() == it->second.getNick()) {
+			this->sendToClient(client, "443", channel->getName() + ERR_USERONCHANNEL);
+			throw InviteCmd::FormatException();
+		}
+	}
+	channel->addToInvite(*toInvite);
+	std::string msgRpl = "";
+	msgRpl = ":" + this->_serv._name + " 341 " + client.getNick() + " " + toInvite->getNick() + " " + channel->getName() + "\r\n";
+	send(client.getFd(), msgRpl.c_str(), msgRpl.size(), 0);
+	msgRpl = ":" + client.getPrefix() + " INVITE " + toInvite->getNick() + " :" + channel->getName() + "\r\n";
+	send(toInvite->getFd(), msgRpl.c_str(), msgRpl.size(), 0);
 }
 
 void InviteCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
-	std::string fullMsg = "";
+	std::string fullMsg = ":" + this->_serv._name + " " + code + " ";
 	if (code == "461")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getUser() + this->_tokens[0] + " " + message;
-	else if (code == "482" || "403")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getUser() + message;
-	else if (code == "441")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getNick() + message;
+		fullMsg += this->_tokens[0] + " " + message;
+	else if (code == "482" || code == "403" || code == "442" || code == "401")
+		fullMsg = message;
+	else if (code == "441" || code == "443")
+		fullMsg = client.getNick() + " " + message;
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 

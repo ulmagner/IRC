@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 14:05:41 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:21:58 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,33 @@ const std::string& Channel::getName( void ) const {
 
 const std::string& Channel::getKey( void ) const {
 	return (this->_key);
+}
+
+bool Channel::getMode( const std::string& mode ) const {
+	std::vector<std::string>::const_iterator it = this->_mode.begin();
+	for(;it != this->_mode.end();) {
+		if (*it == mode)
+			return (true);
+	}
+	return (false);
+}
+
+void Channel::addMode( std::string& mode ) {
+	this->_mode.push_back(mode);
+}
+
+void Channel::addToInvite( Client& client ) {
+	this->_inviteClient.push_back(client);
+}
+
+const Client* Channel::getInvite( const std::string& name ) const {
+	std::vector<Client>::const_iterator it = this->_inviteClient.begin();
+	for (;it != this->_inviteClient.end(); ++it) {
+		if (name == it->getNick()) {
+			return &(*it);
+		}
+	}
+	return (NULL);
 }
 
 bool Channel::hasAlreadyJoin( int fd ) {
