@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 17:18:47 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:56:03 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,23 @@ KickCmd::KickCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 
 KickCmd::~KickCmd( void ) {}
 
+void sendToChannelClient( Channel* channel, std::string& msg ) {
+	std::map<int, Client>::const_iterator it = channel->getClients().begin();
+	for (;it != channel->getClients().end(); ++it) {
+		send(it->second.getFd(), msg.c_str(), msg.size(), 0);
+	}
+}
+
 void KickCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 3 || this->_tokens.size() > 4) {
+	if (this->_tokens.size() < 2 || this->_tokens.size() > 5) {
 		this->sendToClient(client, "461", ERR_NEEDMOREPARAMS);
 		throw KickCmd::FormatException();
 	}
+
+	Channel* channel = NULL;
+
 	std::vector<Channel>& channels = this->_serv.getChannels();
 	std::string name = this->_tokens[1];
-	Channel* channel = NULL;
 	for (size_t j = 0; j < channels.size(); ++j) {
 		if (name == channels[j].getName()) {
 			channel = &channels[j];
@@ -32,49 +41,67 @@ void KickCmd::executeCmd( Client& client ) {
 		}
 	}
 	if (!channel) {
-		this->sendToClient(client, "403", channel->getName() + " " + ERR_NOSUCHCHANNEL);
+		this->sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
 		throw KickCmd::FormatException();
+	}
+	std::map<int, Client>::const_iterator ut = channel->getClients().begin();
+	for (;ut != channel->getClients().end(); ++ut) {
+		std::cout << ut->second.getNick() << std::endl;
 	}
 	std::map<int, Client>& cl = channel->getClients();
 	std::map<int, Client>::iterator it = cl.begin();
 	bool is_i = false;
 	for (;it != cl.end(); ++it) {
-		if (it->second.getFd() == client.getFd())
+		if (it->second.getFd() == client.getFd() && it->first == 1)
 			is_i = true;
 	}
 	if (!is_i) {
-        this->sendToClient(client, "482", channel->getName() + " " + ERR_CHANOPRIVSNEEDED);
+        this->sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw KickCmd::FormatException();
 	}
-	it = cl.begin();
 	std::vector<std::string> cl_name = split(this->_tokens[2], ',');
+	std::string reason = (this->_tokens.size() == 4) ? this->_tokens[3] : "";
 	std::vector<std::string>::const_iterator cl_it = cl_name.begin();
 	bool is = false;
 	for (;cl_it != cl_name.end(); ++cl_it) {
 		is = false;
-		for (;it != cl.end(); ++it) {
-			if (*cl_it == it->second.getUser()) {
+		for (std::map<int, Client>::iterator it = cl.begin(); it != cl.end(); ) {
+			std::cout << "[]" << it->second.getNick() << *cl_it << std::endl;
+			if (it->second.getNick() == *cl_it) {
 				is = true;
-				break ;
+				std::string kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " :" + reason + "\r\n";
+				std::cout << kickMsg << std::endl;
+				sendToChannelClient(channel, kickMsg);
+				cl.erase(it++);
+				break;
+			} else {
+				++it;
 			}
 		}
 		if (!is) {
-			this->sendToClient(client, "441", channel->getName() + " " + ERR_USERNOTINCHANNEL);
+			this->sendToClient(client, "441", *cl_it + " " + channel->getName() + ERR_USERNOTINCHANNEL);
 		}
-		else {
-			cl.erase(it);
-		}
+	}
+	std::map<int, Client>::const_iterator at = channel->getClients().begin();
+	for (;at != channel->getClients().end(); ++at) {
+		std::cout << at->second.getNick() << std::endl;
 	}
 }
 
 void KickCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
-	std::string fullMsg = "";
-	if (code == "461")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getUser() + this->_tokens[0] + " " + message;
-	else if (code == "482" || "403")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getUser() + message;
-	else if (code == "441")
-		fullMsg = ":" + this->_serv._name + " " + code + client.getNick() + message;
+	std::string fullMsg;
+
+	if (code == "461") {
+		fullMsg = ":" + this->_serv._name + " " + code + " " + client.getUser() + " " + this->_tokens[0] + message;
+	}
+	else if (code == "482" || code == "403") {
+		fullMsg = ":" + this->_serv._name + " " + code + " " + client.getUser() + " " + message;
+	}
+	else if (code == "441") {
+		fullMsg = ":" + this->_serv._name + " " + code + " " + client.getNick() + " " + message;
+	}
+
+	fullMsg += "\r\n";
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 

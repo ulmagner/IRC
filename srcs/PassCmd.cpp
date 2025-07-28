@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 18:36:13 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:26:51 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ void PassCmd::executeCmd( Client& client ) {
 		throw PassCmd::FormatException();
 	}
 	client.setPass(tok);
-	std::cout << "Serv creates " << ACmd::_ACmdRef << std::endl;
 }
 
 void PassCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {

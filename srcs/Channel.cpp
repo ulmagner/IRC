@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 16:10:33 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 14:05:41 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,15 @@ const std::string& Channel::getName( void ) const {
 
 const std::string& Channel::getKey( void ) const {
 	return (this->_key);
+}
+
+bool Channel::hasAlreadyJoin( int fd ) {
+	std::map<int, Client>::const_iterator it = this->getClients().begin();
+	for (;it != this->getClients().end(); ++it) {
+		if (fd == it->second.getFd())
+			return (true);
+	}
+	return (false);
 }
 
 std::map<int, Client>& Channel::getClients( void ) {

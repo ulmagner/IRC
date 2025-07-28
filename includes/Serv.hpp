@@ -6,24 +6,26 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 18:45:23 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 14:45:00 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef Serv_hpp
 #define Serv_hpp
-#define ERR_NEEDMOREPARAMS " :Not enough parameters\n\r"
-#define ERR_NOSUCHCHANNEL " :No such channel\n\r"
-#define ERR_BADCHANNELKEY " :Cannot Kick channel\n\r"
-#define ERR_BANNEDFROMCHAN " :Cannot Kick channel\n\r"
-#define ERR_CHANNELISFULL " :Cannot Kick channel\n\r"
-#define ERR_USERNOTINCHANNEL " :They aren't on that channel\n\r"
-#define ERR_BADCHANMASK " :Bad Channel Mask\n\r"
-#define ERR_CHANOPRIVSNEEDED " :You're not channel operator\n\r"
-#define ERR_NICKNAMEINUSE " :Nickname is already in use\n\r"
-#define ERR_ALREADYREGISTERED " :You may not reregister\n\r"
-#define ERR_PASSWDMISMATCH " :Password incorrect\n\r"
-#define ERR_NONICKNAMEGIVEN " :No nickname given\n\r"
+#define ERR_NEEDMOREPARAMS " :Not enough parameters\r\n"
+#define ERR_NOSUCHCHANNEL " :No such channel\r\n"
+#define ERR_BADCHANNELKEY " :Cannot Kick channel\r\n"
+#define ERR_BANNEDFROMCHAN " :Cannot Kick channel\r\n"
+#define ERR_CHANNELISFULL " :Cannot Kick channel\r\n"
+#define ERR_USERNOTINCHANNEL " :They aren't on that channel\r\n"
+#define ERR_BADCHANMASK " :Bad Channel Mask\r\n"
+#define ERR_CHANOPRIVSNEEDED " :You're not channel operator\r\n"
+#define ERR_NICKNAMEINUSE " :Nickname is already in use\r\n"
+#define ERR_ALREADYREGISTERED " :You may not reregister\r\n"
+#define ERR_PASSWDMISMATCH " :Password incorrect\r\n"
+#define ERR_NONICKNAMEGIVEN " :No nickname given\r\n"
+#define RPL_NOTOPIC " :No topic is set\r\n"
+#define RPL_ENDOFNAMES " :End of /NAMES list.\r\n"
 #include <vector>
 #include <map>
 #include <exception>
@@ -99,6 +101,7 @@ class Serv {
 };
 
 std::vector<std::string> split( const std::string& s, char delimiter );
+void sendToChannelClient( Channel* channel, std::string& msg );
 
 extern Serv* g_serv;
 // void sendToClient( int clientFd, const std::string& message );

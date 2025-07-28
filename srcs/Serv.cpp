@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 18:53:25 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:27:22 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,6 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
             }
         }
     }
-    std::cout << client.getAuth() << std::endl;
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
             throw Serv::NotAuthYetException();
