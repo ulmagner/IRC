@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 11:29:04 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 17:38:53 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ class UserCmd : public ACmd {
         UserCmd( std::vector<std::string> tokens, Serv& serv );
         ~UserCmd( void );
         void executeCmd( Client& client );
-        void sendToClient( Client& client, const std::string& code, const std::string& msg);
         class FormatException : public std::exception
         {
             public:

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 12:53:05 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 18:38:05 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include "InviteCmd.hpp"
 #include "TopicCmd.hpp"
 
-Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
+Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -254,12 +254,25 @@ void Serv::run( void ) {
 }
 
 void Serv::sendToClient( Client& client, const std::string& code, const std::string& message ) {
-	std::string fullMsg = "";
-    (void) message;
+	std::string fullMsg = ":" + this->_name + " " + code + " " + client.getNick();
 	if (code == "001")
-		fullMsg = ":" + this->_name + " " + code + " " + client.getUser() + " :Welcome to the " + this->_name + " Network, " + client.getNick() + " [!" + client.getUser() + "@<host>]\n\r";
+		fullMsg += " :Welcome to the " + this->_name + " Network, " + client.getNick() + " [!" + client.getUser() + "@<host>]\r\n";
 	else if (code == "002")
-		fullMsg = ":" + this->_name + " " + code + " " + client.getUser() + " :Your host is " + this->_name + " , running version <version>\n\r";
+		fullMsg += " :Your host is " + this->_name + " , running version <version>\r\n";
+    else if /*[cl, cmd]*/ (code == "461" || code == "421")
+        fullMsg += message;
+    else if /*[cl, channel]*/ (code == "403" || code == "404" || code == "405" \
+        || code == "331" || code == "332" || code == "333" || code == "336" \
+        || code == "442" || code == "366" || code == "471" || code == "473" \
+        || code == "475" || code == "482")
+        fullMsg += message;
+    else if /*[cl, nick, channel]*/ (code == "441" || code == "443")
+        fullMsg += message;
+    else if /*[cl, nick]*/ (code == "401" || code == "433")
+        fullMsg += message;
+    else if /*[cl]*/ (code == "431" || code == "462" || code == "464") {
+        fullMsg += message;
+    }
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 
