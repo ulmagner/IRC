@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 15:54:05 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 16:22:50 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,67 +52,41 @@ void JoinCmd::executeCmd( Client& client ) {
 				this->sendToClient(client, "475", name + ERR_BADCHANNELKEY);
 				continue ;
 			}
-			bool is = channel->hasAlreadyJoin(client.getFd());
-			if (is)
-				std::cout << "CLIENT ALREADY IN CHANNEL." << channel->getName() << std::endl;
-			else {
+			if (!channel->hasAlreadyJoin(client.getFd())) {
 				if (channel->getInvite(client.getNick()))
 					channel->eraseFromInvite(client.getNick());
 				channel->addClient(client);
-				std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
-				sendToChannelClient(channel, msg);
-				sendToClient(client, "331", channel->getName() + RPL_NOTOPIC);
-				if (channel->getTopic().empty()) {
-					sendToClient(client, "331", channel->getName() + RPL_NOTOPIC);
-				} else {
-					sendToClient(client, "332", channel->getName() + " :" + channel->getTopic());
-					std::ostringstream oss;
-					oss << channel->getTopicSetTime();
-					std::string str = oss.str();
-					sendToClient(client, "333", this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
-				}
-				std::map<int, Client>::const_iterator at = channel->getClients().begin();
-				msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
-				for (;at != channel->getClients().end();++at) {
-					msg += " ";
-					if (at->first == 1)
-						msg += "@";
-					msg += at->second.getNick();
-				}
-				msg += "\r\n";
-				send(client.getFd(), msg.c_str(), msg.size(), 0);
-				sendToClient(client, "366", channel->getName() + RPL_ENDOFNAMES);
 			}
 		}
 		else {
-			this->sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
+			// this->sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
 			this->_serv.getChannels().push_back(Channel(name, key, client));
-			Channel* newChannel = &this->_serv.getChannels().back();
+			channel = &this->_serv.getChannels().back();
 			std::string modeMsg = ":" + this->_serv._name + " MODE " + name + " +o " + client.getNick() + "\r\n";
 			send(client.getFd(), modeMsg.c_str(), modeMsg.size(), 0);
-			std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
-			send(client.getFd(), msg.c_str(), msg.size(), 0);
-			if (channel->getTopic().empty()) {
-				sendToClient(client, "331", name + RPL_NOTOPIC);
-			} else {
-				sendToClient(client, "332", name + " :" + channel->getTopic());
-				std::ostringstream oss;
-				oss << channel->getTopicSetTime();
-				std::string str = oss.str();
-				sendToClient(client, "333", this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
-			}
-			std::map<int, Client>::const_iterator at = newChannel->getClients().begin();
-			msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
-			for (;at != newChannel->getClients().end();++at) {
-				msg += " ";
-				if (at->first == 1)
-					msg += "@";
-				msg += at->second.getNick();
-			}
-			msg += "\r\n";
-			send(client.getFd(), msg.c_str(), msg.size(), 0);
-			sendToClient(client, "366", name + RPL_ENDOFNAMES);
 		}
+		std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
+		send(client.getFd(), msg.c_str(), msg.size(), 0);
+		if (channel->getTopic().empty()) {
+			sendToClient(client, "331", name + RPL_NOTOPIC);
+		} else {
+			sendToClient(client, "332", name + " :" + channel->getTopic());
+			std::ostringstream oss;
+			oss << channel->getTopicSetTime();
+			std::string str = oss.str();
+			sendToClient(client, "333", this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
+		}
+		std::map<int, Client>::const_iterator at = channel->getClients().begin();
+		msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
+		for (;at != channel->getClients().end();++at) {
+			msg += " ";
+			if (at->first == 1)
+				msg += "@";
+			msg += at->second.getNick();
+		}
+		msg += "\r\n";
+		send(client.getFd(), msg.c_str(), msg.size(), 0);
+		sendToClient(client, "366", name + RPL_ENDOFNAMES);
 	}
 }
 
