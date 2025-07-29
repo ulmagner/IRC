@@ -6,12 +6,30 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 14:29:39 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 15:07:00 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef Serv_hpp
 #define Serv_hpp
+#define ERR_NEEDMOREPARAMS " :Not enough parameters\r\n"
+#define ERR_NOSUCHCHANNEL " :No such channel\r\n"
+#define ERR_BADCHANNELKEY " :Cannot Kick channel\r\n"
+#define ERR_BANNEDFROMCHAN " :Cannot Kick channel\r\n"
+#define ERR_CHANNELISFULL " :Cannot Kick channel\r\n"
+#define ERR_USERNOTINCHANNEL " :They aren't on that channel\r\n"
+#define ERR_BADCHANMASK " :Bad Channel Mask\r\n"
+#define ERR_CHANOPRIVSNEEDED " :You're not channel operator\r\n"
+#define ERR_NICKNAMEINUSE " :Nickname is already in use\r\n"
+#define ERR_ALREADYREGISTERED " :You may not reregister\r\n"
+#define ERR_PASSWDMISMATCH " :Password incorrect\r\n"
+#define ERR_NONICKNAMEGIVEN " :No nickname given\r\n"
+#define ERR_NOTONCHANNEL " :You're not on that channel"
+#define ERR_NOSUCHNICK " :No such nick/channel\r\n"
+#define ERR_USERONCHANNEL " :is already on channel\r\n"
+#define RPL_NOTOPIC " :No topic is set\r\n"
+#define RPL_ENDOFNAMES " :End of /NAMES list.\r\n"
+#define ERR_INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
 #include <vector>
 #include <map>
 #include <exception>
@@ -25,6 +43,8 @@ class Serv {
     friend class UserCmd;
     friend class JoinCmd;
     friend class KickCmd;
+    friend class InviteCmd;
+    friend class TopicCmd;
     private:
         std::string _name;
         int _port;
@@ -44,13 +64,18 @@ class Serv {
         const std::string& getPass( void ) const;
         const std::map<int, Client>& getConnections() const;
         std::vector<Channel>& getChannels();
+        Channel* getChannelByName( std::string& name );
         ACmd* pass( std::vector<std::string> tokens );
         ACmd* nick( std::vector<std::string> tokens );
         ACmd* user( std::vector<std::string> tokens );
         ACmd* join( std::vector<std::string> tokens );
         ACmd* kick( std::vector<std::string> tokens );
-        ACmd* getCmd( char* buffer, Client& client );
+        ACmd* invite( std::vector<std::string> tokens );
+        ACmd* topic( std::vector<std::string> tokens );
+        ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
+        Client* getClientByName( const std::string& name );
+        void sendToClient( Client& client, const std::string& code, const std::string& msg);
         class FormatException : public std::exception
         {
             public:
@@ -82,6 +107,9 @@ class Serv {
                 virtual const char* what() const throw();
         };
 };
+
+std::vector<std::string> split( const std::string& s, char delimiter );
+void sendToChannelClient( Channel* channel, std::string& msg );
 
 extern Serv* g_serv;
 // void sendToClient( int clientFd, const std::string& message );

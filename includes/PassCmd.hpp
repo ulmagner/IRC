@@ -6,15 +6,12 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:06:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 12:06:10 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PassCmd_hpp
 #define PassCmd_hpp
-#define ERR_PASSWDMISMATCH " :Password incorrect\n\r"
-#define ERR_NEEDMOREPARAMS " :Not enough parameters\n\r"
-#define ERR_ALREADYREGISTERED " :You may not reregister\n\r"
 #include "ACmd.hpp"
 
 class Serv;

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 14:11:42 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 11:05:38 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,10 @@ const std::string& Client::getUser( void ) const {
 
 const std::string& Client::getPass( void ) const {
 	return (this->_pass);
+}
+
+std::string Client::getPrefix( void ) const {
+	return (this->_nick + "!" + this->_user + "@localhost");
 }
 
 const bool& Client::getOp( void ) const {

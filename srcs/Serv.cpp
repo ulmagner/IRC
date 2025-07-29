@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 14:32:33 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 12:53:05 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "UserCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
+#include "InviteCmd.hpp"
+#include "TopicCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -82,6 +84,16 @@ ACmd*	Serv::kick( std::vector<std::string> tokens )
 	return (new KickCmd(tokens, *this));
 }
 
+ACmd*	Serv::invite( std::vector<std::string> tokens )
+{
+	return (new InviteCmd(tokens, *this));
+}
+
+ACmd*	Serv::topic( std::vector<std::string> tokens )
+{
+	return (new TopicCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -94,8 +106,8 @@ std::vector<Channel>& Serv::getChannels( void ){
     return (this->_channels);
 }
 
-ACmd* Serv::getCmd( char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK"};
+ACmd* Serv::getCmd( const char* buffer, Client& client ) {
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -112,6 +124,8 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
         &Serv::user,
         &Serv::join,
         &Serv::kick,
+        &Serv::invite,
+        &Serv::topic,
 	};
 
     if (!client.getAuth()) {
@@ -121,16 +135,12 @@ ACmd* Serv::getCmd( char* buffer, Client& client ) {
             }
         }
     }
-    std::cout << client.getAuth() << std::endl;
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
             throw Serv::AlreadyAuthenticateException();
-        }
-        else if (client.getOp() == false && i >= 4 && auth[i].compare( tokens[0] ) == 0) {
-            throw Serv::NotAnOperatorException();
         }
         else if (auth[i].compare( tokens[0] ) == 0) {
             return (this->*cmds[i])(tokens);
@@ -146,6 +156,14 @@ Client& Serv::getClientByFd( int fd ) {
             return (it->second);
     }
     throw Serv::ErrorException();
+}
+
+Client* Serv::getClientByName( const std::string& name ) {
+    for (std::map<int, Client>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it) {
+        if (it->second.getNick() == name)
+            return &(it->second);
+    }
+    return (NULL);
 }
 
 void Serv::run( void ) {
@@ -206,23 +224,52 @@ void Serv::run( void ) {
                     this->_connections.erase(events[n].data.fd);
                 }
                 else {
-                    std::cout << "Message from client: " << buffer << std::endl;
-                    ACmd* cmd = NULL;
-                    try {
-                        Client& client = this->getClientByFd(events[n].data.fd);
-                        cmd = Serv::getCmd(buffer, client);
-                        cmd->executeCmd(client);
-                        if (!client.getAuth())
-                            client.setAuth(client.checkAuth());
+                    std::string input(buffer, bytes);
+                    std::vector<std::string> commands = split(input, '\r');
+                    for (size_t i = 0; i < commands.size(); ++i) {
+                        if (commands[i].empty())
+                            continue;
+                        ACmd* cmd = NULL;
+                        try {
+                            Client& client = this->getClientByFd(events[n].data.fd);
+                            cmd = Serv::getCmd(commands[i].c_str(), client);
+                            cmd->executeCmd(client);
+                            if (!client.getAuth()) {
+                                client.setAuth(client.checkAuth());
+                                if (client.getAuth()) {
+                                    this->sendToClient(client, "001", "");
+                                    this->sendToClient(client, "002", "");
+                                }
+                            }
+                        }
+                        catch (const std::exception& e) {
+                            std::cout << e.what() << std::endl;
+                        }
+                        delete cmd;
                     }
-                    catch (const std::exception& e) {
-                        std::cout << e.what() << std::endl;
-                    }
-                    delete cmd;
                 }
             }
         }
     }
+}
+
+void Serv::sendToClient( Client& client, const std::string& code, const std::string& message ) {
+	std::string fullMsg = "";
+    (void) message;
+	if (code == "001")
+		fullMsg = ":" + this->_name + " " + code + " " + client.getUser() + " :Welcome to the " + this->_name + " Network, " + client.getNick() + " [!" + client.getUser() + "@<host>]\n\r";
+	else if (code == "002")
+		fullMsg = ":" + this->_name + " " + code + " " + client.getUser() + " :Your host is " + this->_name + " , running version <version>\n\r";
+	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
+}
+
+Channel* Serv::getChannelByName( std::string& name ) {
+    std::vector<Channel>::iterator it = this->_channels.begin();
+    for (; it != this->_channels.end(); ++it) {
+        if (name == it->getName())
+            return &(*it);
+    }
+    return (NULL);
 }
 
 int Serv::isValidPort( const std::string& port ) const {

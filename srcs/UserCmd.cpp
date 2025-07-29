@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:59:52 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:26:55 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ UserCmd::UserCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 UserCmd::~UserCmd( void ) {}
 
 void UserCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 1 || this->_tokens.size() > 2) {
+	if (this->_tokens.size() < 1) {
 		this->sendToClient(client, "461", ERR_NEEDMOREPARAMS);
 		throw UserCmd::FormatException();
 	}
@@ -38,7 +38,6 @@ void UserCmd::executeCmd( Client& client ) {
 			throw UserCmd::FormatException();
 		}
     }
-	std::cout << "Serv creates " << ACmd::_ACmdRef << std::endl;
 }
 
 void UserCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {

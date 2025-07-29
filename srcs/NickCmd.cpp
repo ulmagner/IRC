@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 11:59:46 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:27:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ void NickCmd::executeCmd( Client& client ) {
 			throw NickCmd::ErrorException();
 		}
     }
-	std::cout << "Serv creates " << ACmd::_ACmdRef << std::endl;
 }
 
 void NickCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {

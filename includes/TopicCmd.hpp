@@ -1,38 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   KickCmd.hpp                                        :+:      :+:    :+:   */
+/*   TopicCmd.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/24 14:30:07 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 17:44:03 by ulmagner         ###   ########.fr       */
+/*   Created: 2025/07/29 12:06:01 by ulmagner          #+#    #+#             */
+/*   Updated: 2025/07/29 12:06:26 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef KickCmd_hpp
-#define KickCmd_hpp
-// #define ERR_NEEDMOREPARAMS " :Not enough parameters\n\r"
-// #define ERR_NOSUCHCHANNEL " :No such channel\n\r"
-// #define ERR_BADCHANNELKEY " :Cannot Kick channel\n\r"
-// #define ERR_BANNEDFROMCHAN " :Cannot Kick channel\n\r"
-// #define ERR_CHANNELISFULL " :Cannot Kick channel\n\r"
-// #define ERR_USERNOTINCHANNEL " :They aren't on that channel\n\r"
-// #define ERR_BADCHANMASK " :Bad Channel Mask\n\r"
-// #define ERR_CHANOPRIVSNEEDED " :You're not channel operator\n\r"
+#ifndef TopicCmd_hpp
+#define TopicCmd_hpp
 #include "ACmd.hpp"
 
 class Serv;
 class Client;
 
-class KickCmd : public ACmd{
+class TopicCmd : public ACmd {
     private:
 		std::vector<std::string> _tokens;
         Serv& _serv;
-        KickCmd( void );
+        TopicCmd( void );
     public:
-        KickCmd( std::vector<std::string> tokens, Serv& serv );
-        ~KickCmd( void );
+        TopicCmd( std::vector<std::string> tokens, Serv& serv );
+        ~TopicCmd( void );
         void executeCmd( Client& client );
         void sendToClient( Client& client, const std::string& code, const std::string& msg);
         class FormatException : public std::exception
@@ -42,4 +34,4 @@ class KickCmd : public ACmd{
         };
 };
 
-#endif //KickCmd_hpp
+#endif //TopicCmd_hpp

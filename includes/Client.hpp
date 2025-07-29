@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/24 14:10:19 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/28 11:05:37 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Client {
 		const std::string& getPass( void ) const;
 		const bool& getOp( void ) const;
 		const bool& getAuth( void ) const;
+        std::string getPrefix( void ) const;
 		void setPass( const std::string& attPath );
 		void setNick( const std::string& attNick );
 		void setUser( const std::string& attUser );
