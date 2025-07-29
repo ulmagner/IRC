@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 15:07:00 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 18:36:47 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #define ERR_NOSUCHCHANNEL " :No such channel\r\n"
 #define ERR_BADCHANNELKEY " :Cannot Kick channel\r\n"
 #define ERR_BANNEDFROMCHAN " :Cannot Kick channel\r\n"
-#define ERR_CHANNELISFULL " :Cannot Kick channel\r\n"
+#define ERR_CHANNELISFULLK " :Cannot Kick channel\r\n"
 #define ERR_USERNOTINCHANNEL " :They aren't on that channel\r\n"
 #define ERR_BADCHANMASK " :Bad Channel Mask\r\n"
 #define ERR_CHANOPRIVSNEEDED " :You're not channel operator\r\n"
@@ -24,12 +24,17 @@
 #define ERR_ALREADYREGISTERED " :You may not reregister\r\n"
 #define ERR_PASSWDMISMATCH " :Password incorrect\r\n"
 #define ERR_NONICKNAMEGIVEN " :No nickname given\r\n"
-#define ERR_NOTONCHANNEL " :You're not on that channel"
+#define ERR_NOTONCHANNEL " :You're not on that channel\r\n"
 #define ERR_NOSUCHNICK " :No such nick/channel\r\n"
 #define ERR_USERONCHANNEL " :is already on channel\r\n"
+#define ERR_INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
+#define ERR_UNKNOWNCOMMAND " :Unknown command\r\n"
+#define ERR_CANNOTSENDTOCHAN " :Cannot send to channel\r\n"
+#define ERR_TOOMANYCHANNELS " :You have joined too many channels\r\n"
+#define ERR_CHANNELISFULL " :Cannot join channel (+l)\r\n"
+#define RPL_CHANNELMODEIS "\r\n"
 #define RPL_NOTOPIC " :No topic is set\r\n"
 #define RPL_ENDOFNAMES " :End of /NAMES list.\r\n"
-#define ERR_INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
 #include <vector>
 #include <map>
 #include <exception>
@@ -75,7 +80,7 @@ class Serv {
         ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
         Client* getClientByName( const std::string& name );
-        void sendToClient( Client& client, const std::string& code, const std::string& msg);
+        void sendToClient( Client& client, const std::string& code, const std::string& msg );
         class FormatException : public std::exception
         {
             public:
@@ -112,6 +117,5 @@ std::vector<std::string> split( const std::string& s, char delimiter );
 void sendToChannelClient( Channel* channel, std::string& msg );
 
 extern Serv* g_serv;
-// void sendToClient( int clientFd, const std::string& message );
 
 #endif //Serv_hpp

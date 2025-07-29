@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 15:26:55 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 18:11:22 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@ UserCmd::~UserCmd( void ) {}
 
 void UserCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 1) {
-		this->sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
 		throw UserCmd::FormatException();
 	}
 	if (client.getPass().empty())
 		throw UserCmd::ErrorException();
 	if (!client.getUser().empty()) {
-		this->sendToClient(client, "462", ERR_ALREADYREGISTERED);
+		this->_serv.sendToClient(client, "462", ERR_ALREADYREGISTERED);
 		throw UserCmd::ErrorException();
 	}
 	if (this->_tokens.size() == 1)
@@ -38,15 +38,6 @@ void UserCmd::executeCmd( Client& client ) {
 			throw UserCmd::FormatException();
 		}
     }
-}
-
-void UserCmd::sendToClient( Client& client, const std::string& code, const std::string& message ) {
-	std::string fullMsg = "";
-	if (code == "461")
-		fullMsg = ":" + this->_serv._name + " " + code + " * " + this->_tokens[0] + " " + message;
-	else if (code == "462")
-		fullMsg = ":" + this->_serv._name + " " + code + " * " + message;
-	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 
 const char* UserCmd::FormatException::what() const throw()
