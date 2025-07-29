@@ -1,30 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   UserCmd.hpp                                        :+:      :+:    :+:   */
+/*   TopicCmd.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 11:29:04 by ulmagner         ###   ########.fr       */
+/*   Created: 2025/07/29 12:06:01 by ulmagner          #+#    #+#             */
+/*   Updated: 2025/07/29 12:06:26 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UserCmd_hpp
-#define UserCmd_hpp
+#ifndef TopicCmd_hpp
+#define TopicCmd_hpp
 #include "ACmd.hpp"
 
 class Serv;
 class Client;
 
-class UserCmd : public ACmd {
+class TopicCmd : public ACmd {
     private:
 		std::vector<std::string> _tokens;
         Serv& _serv;
-        UserCmd( void );
+        TopicCmd( void );
     public:
-        UserCmd( std::vector<std::string> tokens, Serv& serv );
-        ~UserCmd( void );
+        TopicCmd( std::vector<std::string> tokens, Serv& serv );
+        ~TopicCmd( void );
         void executeCmd( Client& client );
         void sendToClient( Client& client, const std::string& code, const std::string& msg);
         class FormatException : public std::exception
@@ -34,4 +34,4 @@ class UserCmd : public ACmd {
         };
 };
 
-#endif //UserCmd_hpp
+#endif //TopicCmd_hpp

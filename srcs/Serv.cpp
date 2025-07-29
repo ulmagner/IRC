@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 18:29:57 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 12:53:05 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
 #include "InviteCmd.hpp"
+#include "TopicCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEF"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -88,6 +89,11 @@ ACmd*	Serv::invite( std::vector<std::string> tokens )
 	return (new InviteCmd(tokens, *this));
 }
 
+ACmd*	Serv::topic( std::vector<std::string> tokens )
+{
+	return (new TopicCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -101,7 +107,7 @@ std::vector<Channel>& Serv::getChannels( void ){
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -119,6 +125,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::join,
         &Serv::kick,
         &Serv::invite,
+        &Serv::topic,
 	};
 
     if (!client.getAuth()) {
@@ -254,6 +261,15 @@ void Serv::sendToClient( Client& client, const std::string& code, const std::str
 	else if (code == "002")
 		fullMsg = ":" + this->_name + " " + code + " " + client.getUser() + " :Your host is " + this->_name + " , running version <version>\n\r";
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
+}
+
+Channel* Serv::getChannelByName( std::string& name ) {
+    std::vector<Channel>::iterator it = this->_channels.begin();
+    for (; it != this->_channels.end(); ++it) {
+        if (name == it->getName())
+            return &(*it);
+    }
+    return (NULL);
 }
 
 int Serv::isValidPort( const std::string& port ) const {

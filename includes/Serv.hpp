@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 18:29:41 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 15:07:00 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 #define ERR_USERONCHANNEL " :is already on channel\r\n"
 #define RPL_NOTOPIC " :No topic is set\r\n"
 #define RPL_ENDOFNAMES " :End of /NAMES list.\r\n"
+#define ERR_INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
 #include <vector>
 #include <map>
 #include <exception>
@@ -43,6 +44,7 @@ class Serv {
     friend class JoinCmd;
     friend class KickCmd;
     friend class InviteCmd;
+    friend class TopicCmd;
     private:
         std::string _name;
         int _port;
@@ -62,12 +64,14 @@ class Serv {
         const std::string& getPass( void ) const;
         const std::map<int, Client>& getConnections() const;
         std::vector<Channel>& getChannels();
+        Channel* getChannelByName( std::string& name );
         ACmd* pass( std::vector<std::string> tokens );
         ACmd* nick( std::vector<std::string> tokens );
         ACmd* user( std::vector<std::string> tokens );
         ACmd* join( std::vector<std::string> tokens );
         ACmd* kick( std::vector<std::string> tokens );
         ACmd* invite( std::vector<std::string> tokens );
+        ACmd* topic( std::vector<std::string> tokens );
         ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
         Client* getClientByName( const std::string& name );

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 18:34:02 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 15:08:18 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,9 +87,9 @@ void InviteCmd::sendToClient( Client& client, const std::string& code, const std
 	if (code == "461")
 		fullMsg += this->_tokens[0] + " " + message;
 	else if (code == "482" || code == "403" || code == "442" || code == "401")
-		fullMsg = message;
+		fullMsg += message;
 	else if (code == "441" || code == "443")
-		fullMsg = client.getNick() + " " + message;
+		fullMsg += client.getNick() + " " + message;
 	send(client.getFd(), fullMsg.c_str(), fullMsg.size(), 0);
 }
 
