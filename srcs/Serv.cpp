@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:38:05 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 19:14:06 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,10 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
     std::vector<std::string> tokens;
 
     while (ss >> word) {
+        std::cout << word;
         tokens.push_back(word);
     }
+    std::cout << std::endl;
     if (tokens.empty()) {
         throw std::runtime_error("Empty command");
     }

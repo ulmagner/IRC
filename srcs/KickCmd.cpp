@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:37:23 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 19:00:16 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,6 @@ void KickCmd::executeCmd( Client& client ) {
 		this->_serv.sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
 		throw KickCmd::FormatException();
 	}
-	// std::map<int, Client>::const_iterator ut = channel->getClients().begin();
-	// for (;ut != channel->getClients().end(); ++ut) {
-	// 	std::cout << ut->second.getNick() << std::endl;
-	// }
 	if (!channel->hasPerm(client)) {
         this->_serv.sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw KickCmd::FormatException();
@@ -51,14 +47,13 @@ void KickCmd::executeCmd( Client& client ) {
 	for (;cl_it != cl_name.end(); ++cl_it) {
 		is = false;
 		for (std::map<int, Client>::iterator it = cl.begin(); it != cl.end(); ) {
-			// std::cout << "[]" << it->second.getNick() << *cl_it << std::endl;
-			if (it->second.getNick() == *cl_it) {
+			if (it->second.getUser() == *cl_it) {
 				is = true;
-				std::string kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " :" + reason + "\r\n";
+				std::string kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
 				std::cout << kickMsg << std::endl;
 				sendToChannelClient(channel, kickMsg);
-				cl.erase(it++);
-				break;
+				cl.erase(it++);	
+				break ;
 			} else {
 				++it;
 			}
@@ -67,10 +62,6 @@ void KickCmd::executeCmd( Client& client ) {
 			this->_serv.sendToClient(client, "441", *cl_it + " " + channel->getName() + ERR_USERNOTINCHANNEL);
 		}
 	}
-	// std::map<int, Client>::const_iterator at = channel->getClients().begin();
-	// for (;at != channel->getClients().end(); ++at) {
-	// 	std::cout << at->second.getNick() << std::endl;
-	// }
 }
 
 const char* KickCmd::FormatException::what() const throw()
