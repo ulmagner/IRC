@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 15:39:33 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/29 15:54:05 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,19 +37,12 @@ void JoinCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() > 2)
 		keys = split(this->_tokens[2], ',');
 	std::vector<std::string>::const_iterator itt = chan.begin();
-	std::vector<Channel>& allChannels = this->_serv.getChannels();
 	for (;itt != chan.end(); ++itt) {
 		std::string name = *itt;
 		std::string key = "";
 		if (itt != keys.end())
 			key = *itt;
-		Channel* channel = NULL;
-		for (size_t j = 0;j < allChannels.size(); ++j) {
-			if (allChannels[j].getName() == name) {
-				channel = &allChannels[j];
-				break ;
-			}
-		}
+		Channel* channel = this->_serv.getChannelByName(name);
 		if (channel) {
 			if (channel->getMode("+i") && !channel->getInvite(client.getNick())) {
 				sendToClient(client, "473", name + ERR_INVITEONLYCHAN);
