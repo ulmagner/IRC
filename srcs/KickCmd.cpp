@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 12:14:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:04:17 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@ void KickCmd::executeCmd( Client& client ) {
 		throw KickCmd::FormatException();
 	}
 	std::string name = this->_tokens[1];
+	if (name[0] != '#') {
+		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+		throw KickCmd::FormatException();
+	}
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
 		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);

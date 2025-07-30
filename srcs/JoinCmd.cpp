@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 12:26:19 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:02:20 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ void JoinCmd::executeCmd( Client& client ) {
 		std::string key = "";
 		if (itt != keys.end())
 			key = *itt;
+		if (name[0] != '#') {
+			this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+			continue ;
+		}
 		Channel* channel = this->_serv.getChannelByName(name);
 		if (channel) {
 			if (channel->getMode("+i") && !channel->getInvite(client.getNick())) {
@@ -59,7 +63,6 @@ void JoinCmd::executeCmd( Client& client ) {
 			}
 		}
 		else {
-			// this->sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
 			this->_serv.getChannels().push_back(Channel(name, key, client));
 			channel = &this->_serv.getChannels().back();
 			std::string modeMsg = ":" + this->_serv._name + " MODE " + name + " +o " + client.getNick() + "\r\n";

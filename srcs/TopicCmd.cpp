@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 12:14:01 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:05:19 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,12 @@ void TopicCmd::executeCmd( Client& client ) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw TopicCmd::FormatException();
 	}
-	Channel* channel = this->_serv.getChannelByName(this->_tokens[1]);
+	std::string name = this->_tokens[1];
+	if (name[0] != '#') {
+		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+		throw TopicCmd::FormatException();
+	}
+	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
 		this->_serv.sendToClient(client, "403", " " + channel->getName() + ERR_NOSUCHCHANNEL);
 		throw TopicCmd::FormatException();
@@ -33,13 +38,13 @@ void TopicCmd::executeCmd( Client& client ) {
 	}
 	if (this->_tokens.size() == 2) {
 		if (channel->getTopic().empty()) {
-			this->_serv.sendToClient(client, "331", " " + this->_tokens[1] + RPL_NOTOPIC);
+			this->_serv.sendToClient(client, "331", " " + name + RPL_NOTOPIC);
 		} else {
-			this->_serv.sendToClient(client, "332", " " + this->_tokens[1] + " :" + channel->getTopic());
+			this->_serv.sendToClient(client, "332", " " + name + " :" + channel->getTopic());
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
-			this->_serv.sendToClient(client, "333", " " + this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
+			this->_serv.sendToClient(client, "333", " " + name + " " + channel->getTopicSetter() + " " + str);
 		}
 		return ;
 	}
