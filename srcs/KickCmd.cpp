@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:10:18 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:18:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void KickCmd::executeCmd( Client& client ) {
 				kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
 				std::cout << kickMsg << std::endl;
 				sendToChannelClient(channel, kickMsg);
-				cl.erase(it++);	
+				cl.erase(it++);
 				break ;
 			} else {
 				++it;

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 11:46:08 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:55:03 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "KickCmd.hpp"
 #include "InviteCmd.hpp"
 #include "TopicCmd.hpp"
+#include "PartCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -94,6 +95,11 @@ ACmd*	Serv::topic( std::vector<std::string> tokens )
 	return (new TopicCmd(tokens, *this));
 }
 
+ACmd*	Serv::part( std::vector<std::string> tokens )
+{
+	return (new PartCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -107,7 +113,7 @@ std::vector<Channel>& Serv::getChannels( void ){
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -128,6 +134,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::kick,
         &Serv::invite,
         &Serv::topic,
+        &Serv::part,
 	};
 
     if (!client.getAuth()) {

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:36:47 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:55:32 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Serv {
     friend class KickCmd;
     friend class InviteCmd;
     friend class TopicCmd;
+    friend class PartCmd;
     private:
         std::string _name;
         int _port;
@@ -77,6 +78,7 @@ class Serv {
         ACmd* kick( std::vector<std::string> tokens );
         ACmd* invite( std::vector<std::string> tokens );
         ACmd* topic( std::vector<std::string> tokens );
+        ACmd* part( std::vector<std::string> tokens );
         ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
         Client* getClientByName( const std::string& name );

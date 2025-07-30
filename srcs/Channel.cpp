@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 15:42:06 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:42:37 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,19 @@ void Channel::eraseFromInvite( const std::string& nick ) {
 
 void Channel::setTopic( const std::string& topic )  {
 	this->_topic = topic;
+}
+
+void Channel::removeClient( const std::string& nick ) {
+	std::map<int, Client>::iterator it = this->_clientConnected.begin();
+	for (; it != this->_clientConnected.end();) {
+		std::cout << it->second.getNick();
+		if (nick == it->second.getNick()) {
+			std::map<int, Client>::iterator toErase = it++;
+			this->_clientConnected.erase(toErase);
+		}
+		else
+			++it;
+	}
 }
 
 bool Channel::hasPerm( Client& client ) const {

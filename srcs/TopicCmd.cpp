@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:09:28 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:59:25 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void TopicCmd::executeCmd( Client& client ) {
 	}
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
-		this->_serv.sendToClient(client, "403", " " + channel->getName() + ERR_NOSUCHCHANNEL);
+		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
 		throw TopicCmd::FormatException();
 	}
 	if (!channel->getClientByName(client.getNick())) {
