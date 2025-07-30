@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:02:20 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:10:24 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ std::vector<std::string> split( const std::string& s, char delimiter ) {
 }
 
 void JoinCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 2 || this->_tokens.size() > 3) {
+	if (this->_tokens.size() < 2) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw JoinCmd::FormatException();
 	}

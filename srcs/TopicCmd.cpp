@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:05:19 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:09:28 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ TopicCmd::TopicCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[
 TopicCmd::~TopicCmd( void ) {}
 
 void TopicCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 1) {
+	if (this->_tokens.size() < 2) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw TopicCmd::FormatException();
 	}

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:04:17 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:10:18 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void sendToChannelClient( Channel* channel, std::string& msg ) {
 }
 
 void KickCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 2 || this->_tokens.size() > 5) {
+	if (this->_tokens.size() < 2) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw KickCmd::FormatException();
 	}

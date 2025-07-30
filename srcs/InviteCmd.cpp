@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:03:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:10:35 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ InviteCmd::InviteCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(token
 InviteCmd::~InviteCmd( void ) {}
 
 void InviteCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 3 || this->_tokens.size() > 4) {
+	if (this->_tokens.size() < 3) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw InviteCmd::FormatException();
 	}

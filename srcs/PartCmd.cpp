@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 18:43:44 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:05:56 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 13:08:22 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ PartCmd::PartCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 PartCmd::~PartCmd( void ) {}
 
 void PartCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 1 || this->_tokens.size() > 3) {
+	if (this->_tokens.size() < 2) {
 		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw PartCmd::FormatException();
 	}
@@ -55,7 +55,7 @@ void PartCmd::executeCmd( Client& client ) {
 	channel->setTopicSetter(client.getNick());
 	channel->setTopic(this->_tokens[2]);
 	channel->setTopicSetTime(std::time(NULL));
-    std::string msg = ":" + client.getPrefix() + " TOPIC " + channel->getName() + " :" + channel->getTopic() + "\r\n";
+    std::string msg = ":" + client.getPrefix() + " PART " + channel->getName() + " :" + channel->getTopic() + "\r\n";
     sendToChannelClient(channel, msg);
 }
 
