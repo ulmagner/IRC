@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 19:00:09 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 20:37:12 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,22 +25,27 @@ void sendToChannelClient( Channel* channel, std::string& msg ) {
 }
 
 void KickCmd::executeCmd( Client& client ) {
+	std::string m = "";
 	if (this->_tokens.size() < 2) {
-		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
 	}
 	std::string name = this->_tokens[1];
 	if (name[0] != '#') {
-		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
 	}
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
-		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
 	}
 	if (!channel->hasPerm(client)) {
-        this->_serv.sendToClient(client, "482", " " + channel->getName() + ERR_CHANOPRIVSNEEDED);
+		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
 	}
 	std::map<int, std::pair<Client *, int> >& cl = channel->getClients();
@@ -59,9 +64,8 @@ void KickCmd::executeCmd( Client& client ) {
 					send(client.getFd(), kickMsg.c_str(), kickMsg.size(), 0);
 					break ;
 				}
-				kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
-				std::cout << kickMsg << std::endl;
-				sendToChannelClient(channel, kickMsg);
+				m = KICK_MSG(client.getNick(), client.getUser(), channel->getName(), *cl_it, reason);
+				sendToChannelClient(channel, m);
 				cl.erase(it++);
 				break ;
 			} else {
@@ -69,7 +73,8 @@ void KickCmd::executeCmd( Client& client ) {
 			}
 		}
 		if (!is) {
-			this->_serv.sendToClient(client, "441", " " + *cl_it + " " + channel->getName() + ERR_USERNOTINCHANNEL);
+			m = ERR_USERNOTINCHANNEL(client.getNick(), *cl_it, channel->getName());
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		}
 	}
 }

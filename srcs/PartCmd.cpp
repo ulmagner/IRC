@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 18:43:44 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 16:33:48 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 20:27:45 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,10 @@ PartCmd::PartCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 PartCmd::~PartCmd( void ) {}
 
 void PartCmd::executeCmd( Client& client ) {
+	std::string m = "";
 	if (this->_tokens.size() < 2) {
-		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw PartCmd::FormatException();
 	}
 	std::vector<std::string> chan = split(this->_tokens[1], ',');
@@ -31,16 +33,19 @@ void PartCmd::executeCmd( Client& client ) {
 	for (;itt != chan.end(); ++itt) {
 		name = *itt;
 		if (name[0] != '#') {
-			this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+			m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			continue ;
 		}
 		Channel* channel = this->_serv.getChannelByName(name);
 		if (!channel) {
-			this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+			m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			continue ;
 		}
 		if (!channel->getClientByName(client.getNick())) {
-			this->_serv.sendToClient(client, "442", " " + channel->getName() + ERR_NOTONCHANNEL);
+			m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			continue ;
 		}
 		std::string msg = ":" + client.getPrefix() + " PART " + channel->getName() + " " + reason + "\r\n";

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:09:37 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 20:28:09 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,17 @@ UserCmd::UserCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 UserCmd::~UserCmd( void ) {}
 
 void UserCmd::executeCmd( Client& client ) {
+	std::string m = "";
 	if (this->_tokens.size() < 2) {
-		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw UserCmd::FormatException();
 	}
 	if (client.getPass().empty())
 		throw UserCmd::ErrorException();
 	if (!client.getUser().empty()) {
-		this->_serv.sendToClient(client, "462", ERR_ALREADYREGISTERED);
+		m = ERR_ALREADYREGISTERED(client.getNick());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw UserCmd::ErrorException();
 	}
 	if (this->_tokens.size() == 1)

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 18:51:50 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 21:02:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,10 @@ std::vector<std::string> split( const std::string& s, char delimiter ) {
 }
 
 void JoinCmd::executeCmd( Client& client ) {
+	std::string m = "";
 	if (this->_tokens.size() < 2) {
-		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw JoinCmd::FormatException();
 	}
 	std::vector<std::string> chan = split(this->_tokens[1], ',');
@@ -43,17 +45,20 @@ void JoinCmd::executeCmd( Client& client ) {
 		if (itt != keys.end())
 			key = *itt;
 		if (name[0] != '#') {
-			this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
+			m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			continue ;
 		}
 		Channel* channel = this->_serv.getChannelByName(name);
 		if (channel) {
 			if (channel->getMode("+i") && !channel->getInvite(client.getNick())) {
-				this->_serv.sendToClient(client, "473", " " + name + ERR_INVITEONLYCHAN);
+				m = ERR_INVITEONLYCHAN(client.getNick(), name);
+				send(client.getFd(), m.c_str(), m.size(), 0);
 				throw Channel::FormatException();
 			}
 			if (key != channel->getKey()) {
-				this->_serv.sendToClient(client, "475", " " + name + ERR_BADCHANNELKEY);
+				m = ERR_BADCHANNELKEY(client.getNick(), name);
+				send(client.getFd(), m.c_str(), m.size(), 0);
 				continue ;
 			}
 			if (!channel->hasAlreadyJoin(client.getFd())) {
@@ -66,35 +71,35 @@ void JoinCmd::executeCmd( Client& client ) {
 			Channel* newChan = new Channel(name, key, client);
 			this->_serv.getChannels().push_back(newChan);
 			channel = newChan;
-			std::string modeMsg = ":" + this->_serv._name + " MODE " + name + " +o " + client.getNick() + "\r\n";
-			send(client.getFd(), modeMsg.c_str(), modeMsg.size(), 0);
+			m = RPL_MODE(client.getNick(), client.getUser(), name, "+o");
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		}
-		// std::string msg = ":" + client.getPrefix() + " PART " + channel->getName() + " " + reason + "\r\n";
-		std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
-		sendToChannelClient(channel, msg);
-		// send(client.getFd(), msg.c_str(), msg.size(), 0);
+		m = JOIN_CHANNEL(client.getNick(), client.getUser(), name);
+		sendToChannelClient(channel, m);
 		if (channel->getTopic().empty()) {
-			this->_serv.sendToClient(client, "331", " " + name + RPL_NOTOPIC);
+			m = RPL_NOTOPIC(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		} else {
-			this->_serv.sendToClient(client, "332", " " + name + " :" + channel->getTopic() + "\r\n");
+			m = RPL_TOPIC(client.getNick(), name, channel->getTopic());
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
 			this->_serv.sendToClient(client, "333", " " + this->_tokens[1] + " " + channel->getTopicSetter() + " " + str + "\r\n");
 		}
 		std::map<int, std::pair<Client *, int> >::const_iterator at = channel->getClients().begin();
-		msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
+		std::string ms = "";
 		for (;at != channel->getClients().end();++at) {
 			if (at != channel->getClients().begin())
-				msg += " ";
+				ms += " ";
 			if (at->second.second == 1)
-				msg += "@";
-			msg += at->second.first->getNick();
+				ms += "@";
+			ms += at->second.first->getNick();
 		}
-		msg += "\r\n";
-		sendToChannelClient(channel, msg);
-		// send(client.getFd(), msg.c_str(), msg.size(), 0);
-		this->_serv.sendToClient(client, "366", " " + name + RPL_ENDOFNAMES);
+		m = RPL_NAMREPLY(client.getNick(), name, ms);
+		sendToChannelClient(channel, m);
+		m = RPL_ENDOFNAMES(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 	}
 }
 

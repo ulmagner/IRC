@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 18:20:23 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 21:00:14 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "InviteCmd.hpp"
 #include "TopicCmd.hpp"
 #include "PartCmd.hpp"
+#include "PrvCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -108,6 +109,11 @@ ACmd*	Serv::part( std::vector<std::string> tokens )
 	return (new PartCmd(tokens, *this));
 }
 
+ACmd*	Serv::prv( std::vector<std::string> tokens )
+{
+	return (new PrvCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -121,7 +127,7 @@ std::vector<Channel*>& Serv::getChannels( void ){
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -143,6 +149,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::invite,
         &Serv::topic,
         &Serv::part,
+        &Serv::prv,
 	};
 
     if (!client.getAuth()) {
@@ -154,6 +161,8 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
     }
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
+            std::string m = ERR_NOTREGISTERED(client.getNick());
+            send(client.getFd(), m.c_str(), m.size(), 0);
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
@@ -163,6 +172,8 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
             return (this->*cmds[i])(tokens);
         }
     }
+    // std::string m = ERR_(client.getNick());
+    // send(client.getFd(), m.c_str(), m.size(), 0);
     throw Serv::CmdNotFoundException();
     return (NULL);
 }
