@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:18:01 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 19:00:09 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ KickCmd::KickCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 KickCmd::~KickCmd( void ) {}
 
 void sendToChannelClient( Channel* channel, std::string& msg ) {
-	std::map<int, Client>::const_iterator it = channel->getClients().begin();
+	std::map<int, std::pair<Client *, int> >::const_iterator it = channel->getClients().begin();
 	for (;it != channel->getClients().end(); ++it) {
-		send(it->second.getFd(), msg.c_str(), msg.size(), 0);
+		send(it->second.first->getFd(), msg.c_str(), msg.size(), 0);
 	}
 }
 
@@ -43,23 +43,22 @@ void KickCmd::executeCmd( Client& client ) {
         this->_serv.sendToClient(client, "482", " " + channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw KickCmd::FormatException();
 	}
-	std::map<int, Client>& cl = channel->getClients();
+	std::map<int, std::pair<Client *, int> >& cl = channel->getClients();
 	std::vector<std::string> cl_name = split(this->_tokens[2], ',');
 	std::string reason = (this->_tokens.size() == 4) ? this->_tokens[3] : "";
 	std::vector<std::string>::const_iterator cl_it = cl_name.begin();
 	bool is = false;
 	for (;cl_it != cl_name.end(); ++cl_it) {
 		is = false;
-		for (std::map<int, Client>::iterator it = cl.begin(); it != cl.end(); ) {
+		for (std::map<int, std::pair<Client *, int> >::iterator it = cl.begin(); it != cl.end(); ) {
 			std::string kickMsg = "";
-			if (it->second.getUser() == client.getUser()) {
+			if (it->second.first->getUser() == *cl_it) {
 				is = true;
-				kickMsg = ":IRC_SERVER 999 " + client.getNick() + " " + channel->getName() + " :You cannot kick yourself\r\n";
-				send(client.getFd(), kickMsg.c_str(), kickMsg.size(), 0);
-				break ;
-			}
-			if (it->second.getUser() == *cl_it) {
-				is = true;
+				if (*cl_it == client.getUser()) {
+					kickMsg = ":IRC_SERVER 999 " + client.getNick() + " " + channel->getName() + " :You cannot kick yourself\r\n";
+					send(client.getFd(), kickMsg.c_str(), kickMsg.size(), 0);
+					break ;
+				}
 				kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
 				std::cout << kickMsg << std::endl;
 				sendToChannelClient(channel, kickMsg);

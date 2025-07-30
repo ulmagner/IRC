@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:55:03 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 18:20:23 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@ Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_pass = arg[2];
 }
 
-Serv::~Serv( void ) {}
+Serv::~Serv( void ) {
+    std::cout << "Serv destructor called" << std::endl;
+    this->shutdown();
+}
 
 void Serv::createTcpServerSocket( void ) {
     this->_socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -51,6 +54,11 @@ void Serv::shutdown( void ) {
             fd = -1;
         }
     }
+    for (size_t i = 0; i < this->_channels.size(); ++i) {
+        delete this->_channels[i];
+    }
+    this->_channels.clear();
+    this->_channels.~vector();
     this->_connections.clear();
     if (this->_epollfd != -1)
         close(this->_epollfd);
@@ -108,7 +116,7 @@ const std::map<int, Client>& Serv::getConnections( void ) const {
     return (this->_connections);
 }
 
-std::vector<Channel>& Serv::getChannels( void ){
+std::vector<Channel*>& Serv::getChannels( void ){
     return (this->_channels);
 }
 
@@ -286,10 +294,10 @@ void Serv::sendToClient( Client& client, const std::string& code, const std::str
 }
 
 Channel* Serv::getChannelByName( std::string& name ) {
-    std::vector<Channel>::iterator it = this->_channels.begin();
+    std::vector<Channel*>::iterator it = this->_channels.begin();
     for (; it != this->_channels.end(); ++it) {
-        if (name == it->getName())
-            return &(*it);
+        if (name == (*it)->getName())
+            return (*it);
     }
     return (NULL);
 }

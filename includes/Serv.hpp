@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:55:32 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 17:41:03 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class Serv {
         int _socketfd;
         int _epollfd;
         std::map<int, Client> _connections;
-        std::vector<Channel> _channels;
+        std::vector<Channel*> _channels;
         int isValidPort( const std::string& port ) const;
         void isValidPass( const std::string& pass ) const;
         void createTcpServerSocket( void );
@@ -69,7 +69,7 @@ class Serv {
         void run( void );
         const std::string& getPass( void ) const;
         const std::map<int, Client>& getConnections() const;
-        std::vector<Channel>& getChannels();
+        std::vector<Channel*>& getChannels();
         Channel* getChannelByName( std::string& name );
         ACmd* pass( std::vector<std::string> tokens );
         ACmd* nick( std::vector<std::string> tokens );

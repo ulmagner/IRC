@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 18:43:44 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:58:53 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 16:33:48 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@ void PartCmd::executeCmd( Client& client ) {
 		throw PartCmd::FormatException();
 	}
 	std::vector<std::string> chan = split(this->_tokens[1], ',');
-	std::string reason = (this->_tokens.size() == 3) ? this->_tokens[2] : ":Leaving";
+	std::string reason = (this->_tokens.size() == 3) ? this->_tokens[2] : "Leaving";
+	if (reason[0] != ':')
+		reason = ":" + reason;
 	std::vector<std::string>::const_iterator itt = chan.begin();
 	std::string name = "";
 	for (;itt != chan.end(); ++itt) {

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:10:24 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 18:51:50 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,16 @@ void JoinCmd::executeCmd( Client& client ) {
 			}
 		}
 		else {
-			this->_serv.getChannels().push_back(Channel(name, key, client));
-			channel = &this->_serv.getChannels().back();
+			Channel* newChan = new Channel(name, key, client);
+			this->_serv.getChannels().push_back(newChan);
+			channel = newChan;
 			std::string modeMsg = ":" + this->_serv._name + " MODE " + name + " +o " + client.getNick() + "\r\n";
 			send(client.getFd(), modeMsg.c_str(), modeMsg.size(), 0);
 		}
+		// std::string msg = ":" + client.getPrefix() + " PART " + channel->getName() + " " + reason + "\r\n";
 		std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
-		send(client.getFd(), msg.c_str(), msg.size(), 0);
+		sendToChannelClient(channel, msg);
+		// send(client.getFd(), msg.c_str(), msg.size(), 0);
 		if (channel->getTopic().empty()) {
 			this->_serv.sendToClient(client, "331", " " + name + RPL_NOTOPIC);
 		} else {
@@ -79,17 +82,18 @@ void JoinCmd::executeCmd( Client& client ) {
 			std::string str = oss.str();
 			this->_serv.sendToClient(client, "333", " " + this->_tokens[1] + " " + channel->getTopicSetter() + " " + str + "\r\n");
 		}
-		std::map<int, Client>::const_iterator at = channel->getClients().begin();
+		std::map<int, std::pair<Client *, int> >::const_iterator at = channel->getClients().begin();
 		msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
 		for (;at != channel->getClients().end();++at) {
 			if (at != channel->getClients().begin())
 				msg += " ";
-			if (at->first == 1)
+			if (at->second.second == 1)
 				msg += "@";
-			msg += at->second.getNick();
+			msg += at->second.first->getNick();
 		}
 		msg += "\r\n";
-		send(client.getFd(), msg.c_str(), msg.size(), 0);
+		sendToChannelClient(channel, msg);
+		// send(client.getFd(), msg.c_str(), msg.size(), 0);
 		this->_serv.sendToClient(client, "366", " " + name + RPL_ENDOFNAMES);
 	}
 }

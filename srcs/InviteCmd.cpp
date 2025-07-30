@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:10:35 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 17:16:58 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,18 +36,18 @@ void InviteCmd::executeCmd( Client& client ) {
 		this->_serv.sendToClient(client, "403", " " + channel->getName() + ERR_NOSUCHCHANNEL);
 		throw InviteCmd::FormatException();
 	}
-	std::map<int, Client>& cl = channel->getClients();
-	std::map<int, Client>::iterator it = cl.begin();
+	std::map<int, std::pair<Client *, int> >& cl = channel->getClients();
+	std::map<int, std::pair<Client *, int> >::iterator it = cl.begin();
 	int is_i = 0;
 	Client* toInvite = NULL;
 	for (;it != cl.end(); ++it) {
-		if (it->second.getFd() == client.getFd()) {
+		if (it->second.first->getFd() == client.getFd()) {
 			is_i = 1;
 			if (it->first == 1) {
 				is_i = 2;
 			}
 		}
-		if (it->second.getNick() == this->_tokens[1]) {
+		if (it->second.first->getNick() == this->_tokens[1]) {
 			this->_serv.sendToClient(client, "443", " " + this->_tokens[1] + " " + channel->getName() + ERR_USERONCHANNEL);
 			throw InviteCmd::FormatException();
 		}

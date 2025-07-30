@@ -6,18 +6,22 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 13:42:37 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 18:28:23 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
 Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key), _topic(""), _topicSetter(""), _topicSetTime(0) {
-	this->_clientConnected.insert(std::make_pair(1, client));
+	this->_clientConnected[client.getFd()] = std::make_pair(&client, 1);
 	client.setOp(true);
 }
 
-Channel::~Channel( void ) {}
+Channel::~Channel( void ) {
+	this->_mode.clear();
+    this->_clientConnected.clear();
+	this->_inviteClient.clear();
+}
 
 void Channel::setName( const std::string& attName ) {
 	this->_name = attName;
@@ -28,7 +32,7 @@ void Channel::setKey( const std::string& attKey ) {
 }
 
 void Channel::addClient( Client& client ) {
-	this->_clientConnected.insert(std::make_pair(0, client));
+	this->_clientConnected[client.getFd()] = std::make_pair(&client, 0);
 }
 
 const std::string& Channel::getName( void ) const {
@@ -68,18 +72,18 @@ void Channel::setTopicSetter( const std::string& nick ) {
 	this->_topicSetter = nick;
 }
 
-void Channel::addMode( std::string& mode ) {
+void Channel::addMode( const std::string& mode ) {
 	this->_mode.push_back(mode);
 }
 
 void Channel::addToInvite( Client& client ) {
-	this->_inviteClient.push_back(client);
+	this->_inviteClient.push_back(&client);
 }
 
 void Channel::eraseFromInvite( const std::string& nick ) {
-	std::vector<Client>::iterator it = this->_inviteClient.begin();
+	std::vector<Client*>::iterator it = this->_inviteClient.begin();
 	for (; it != this->_inviteClient.end();) {
-		if (it->getNick() == nick)
+		if ((*it)->getNick() == nick)
 			it = this->_inviteClient.erase(it);
 		else
 			++it;
@@ -91,12 +95,11 @@ void Channel::setTopic( const std::string& topic )  {
 }
 
 void Channel::removeClient( const std::string& nick ) {
-	std::map<int, Client>::iterator it = this->_clientConnected.begin();
+	std::map<int, std::pair<Client*, int> >::iterator it = this->_clientConnected.begin();
 	for (; it != this->_clientConnected.end();) {
-		std::cout << it->second.getNick();
-		if (nick == it->second.getNick()) {
-			std::map<int, Client>::iterator toErase = it++;
-			this->_clientConnected.erase(toErase);
+		if (nick == it->second.first->getNick()) {
+			std::map<int, std::pair<Client*, int> >::iterator toRemove = it++;
+			this->_clientConnected.erase(toRemove);
 		}
 		else
 			++it;
@@ -104,48 +107,40 @@ void Channel::removeClient( const std::string& nick ) {
 }
 
 bool Channel::hasPerm( Client& client ) const {
-	std::map<int, Client>::const_iterator it = this->_clientConnected.begin();
-	for (; it != this->_clientConnected.end(); ++it) {
-		if (it->second.getFd() == client.getFd()) {
-			if (it->first == 1)
-				return (true);
-			else
-				return (false);
-		}
+	int fd = client.getFd();
+	std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.find(fd);
+	if (it != this->_clientConnected.end()) {
+		return (it->second.second == 1);
 	}
 	return (false);
 }
 
 Client* Channel::getClientByName( const std::string& name ) {
-	std::map<int, Client>::iterator it = this->_clientConnected.begin();
+	std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.begin();
 	for (;it != this->_clientConnected.end(); ++it) {
-		if (name == it->second.getNick()) {
-			return &(it->second);
+		if (name == it->second.first->getNick()) {
+			return (it->second.first);
 		}
 	}
 	return (NULL);
 }
 
 const Client* Channel::getInvite( const std::string& name ) const {
-	std::vector<Client>::const_iterator it = this->_inviteClient.begin();
+	std::vector<Client*>::const_iterator it = this->_inviteClient.begin();
 	for (;it != this->_inviteClient.end(); ++it) {
-		if (name == it->getNick()) {
-			return &(*it);
+		if (name == (*it)->getNick()) {
+			return (*it);
 		}
 	}
 	return (NULL);
 }
 
 bool Channel::hasAlreadyJoin( int fd ) {
-	std::map<int, Client>::const_iterator it = this->getClients().begin();
-	for (;it != this->getClients().end(); ++it) {
-		if (fd == it->second.getFd())
-			return (true);
-	}
-	return (false);
+	std::map<int, std::pair<Client*, int> >::const_iterator it = this->getClients().find(fd);
+	return (it != this->getClients().end());
 }
 
-std::map<int, Client>& Channel::getClients( void ) {
+std::map<int, std::pair<Client*, int> >& Channel::getClients( void ) {
 	return (this->_clientConnected);
 }
 
