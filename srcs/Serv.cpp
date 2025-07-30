@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 19:14:06 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 11:46:08 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,9 +258,9 @@ void Serv::run( void ) {
 void Serv::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = ":" + this->_name + " " + code + " " + client.getNick();
 	if (code == "001")
-		fullMsg += " :Welcome to the " + this->_name + " Network, " + client.getNick() + " [!" + client.getUser() + "@<host>]\r\n";
+		fullMsg += " :Welcome to the " + this->_name + " Network, " + client.getNick() + "[!" + client.getUser() + "@localhost]\r\n";
 	else if (code == "002")
-		fullMsg += " :Your host is " + this->_name + " , running version <version>\r\n";
+		fullMsg += " :Your host is " + this->_name + ", running version 1.0.0\r\n";
     else if /*[cl, cmd]*/ (code == "461" || code == "421")
         fullMsg += message;
     else if /*[cl, channel]*/ (code == "403" || code == "404" || code == "405" \

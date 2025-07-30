@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 19:00:16 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 12:14:45 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,17 @@ void sendToChannelClient( Channel* channel, std::string& msg ) {
 
 void KickCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 2 || this->_tokens.size() > 5) {
-		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw KickCmd::FormatException();
 	}
 	std::string name = this->_tokens[1];
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
-		this->_serv.sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
+		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
 		throw KickCmd::FormatException();
 	}
 	if (!channel->hasPerm(client)) {
-        this->_serv.sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
+        this->_serv.sendToClient(client, "482", " " + channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw KickCmd::FormatException();
 	}
 	std::map<int, Client>& cl = channel->getClients();
@@ -47,9 +47,16 @@ void KickCmd::executeCmd( Client& client ) {
 	for (;cl_it != cl_name.end(); ++cl_it) {
 		is = false;
 		for (std::map<int, Client>::iterator it = cl.begin(); it != cl.end(); ) {
+			std::string kickMsg = "";
+			if (it->second.getUser() == client.getUser()) {
+				is = true;
+				kickMsg = ":IRC_SERVER 999 " + client.getNick() + " " + channel->getName() + " :You cannot kick yourself\r\n";
+				send(client.getFd(), kickMsg.c_str(), kickMsg.size(), 0);
+				break ;
+			}
 			if (it->second.getUser() == *cl_it) {
 				is = true;
-				std::string kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
+				kickMsg = ":" + client.getPrefix() + " KICK " + channel->getName() + " " + *cl_it + " " + reason + "\r\n";
 				std::cout << kickMsg << std::endl;
 				sendToChannelClient(channel, kickMsg);
 				cl.erase(it++);	
@@ -59,7 +66,7 @@ void KickCmd::executeCmd( Client& client ) {
 			}
 		}
 		if (!is) {
-			this->_serv.sendToClient(client, "441", *cl_it + " " + channel->getName() + ERR_USERNOTINCHANNEL);
+			this->_serv.sendToClient(client, "441", " " + *cl_it + " " + channel->getName() + ERR_USERNOTINCHANNEL);
 		}
 	}
 }

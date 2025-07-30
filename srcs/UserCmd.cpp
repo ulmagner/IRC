@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:11:22 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 11:55:11 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ UserCmd::~UserCmd( void ) {}
 
 void UserCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 1) {
-		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw UserCmd::FormatException();
 	}
 	if (client.getPass().empty())

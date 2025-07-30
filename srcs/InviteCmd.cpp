@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 19:05:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 11:55:31 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,17 @@ InviteCmd::~InviteCmd( void ) {}
 
 void InviteCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 3 || this->_tokens.size() > 4) {
-		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+		this->_serv.sendToClient(client, "461", " " + this->_tokens[0] + ERR_NEEDMOREPARAMS);
 		throw InviteCmd::FormatException();
 	}
 	std::string name = this->_tokens[2];
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
-		this->_serv.sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
+		this->_serv.sendToClient(client, "403", " " + name + ERR_NOSUCHCHANNEL);
 		throw InviteCmd::FormatException();
 	}
 	if (channel && channel->getClients().size() < 1) {
-		this->_serv.sendToClient(client, "403", channel->getName() + ERR_NOSUCHCHANNEL);
+		this->_serv.sendToClient(client, "403", " " + channel->getName() + ERR_NOSUCHCHANNEL);
 		throw InviteCmd::FormatException();
 	}
 	std::map<int, Client>& cl = channel->getClients();
@@ -44,24 +44,24 @@ void InviteCmd::executeCmd( Client& client ) {
 			}
 		}
 		if (it->second.getNick() == this->_tokens[1]) {
-			this->_serv.sendToClient(client, "443", this->_tokens[1] + " " + channel->getName() + ERR_USERONCHANNEL);
+			this->_serv.sendToClient(client, "443", " " + this->_tokens[1] + " " + channel->getName() + ERR_USERONCHANNEL);
 			throw InviteCmd::FormatException();
 		}
 	}
 	if (!is_i) {
-        this->_serv.sendToClient(client, "442", channel->getName() + ERR_NOTONCHANNEL);
+        this->_serv.sendToClient(client, "442", " " + channel->getName() + ERR_NOTONCHANNEL);
 	}
 	else if (is_i == 1 && channel->getMode("+i")) {
-        this->_serv.sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
+        this->_serv.sendToClient(client, "482", " " + channel->getName() + ERR_CHANOPRIVSNEEDED);
 		throw InviteCmd::FormatException();
 	}
 	toInvite = this->_serv.getClientByName(this->_tokens[1]);
 	if (!toInvite) {
-		this->_serv.sendToClient(client, "401", this->_tokens[1] + ERR_NOSUCHNICK);
+		this->_serv.sendToClient(client, "401", " " + this->_tokens[1] + ERR_NOSUCHNICK);
 		throw InviteCmd::FormatException();
 	}
 	if (channel->getClientByName(toInvite->getNick())) {
-		this->_serv.sendToClient(client, "443", toInvite->getNick() + " " + channel->getName() + ERR_USERONCHANNEL);
+		this->_serv.sendToClient(client, "443", " " + toInvite->getNick() + " " + channel->getName() + ERR_USERONCHANNEL);
 		throw InviteCmd::FormatException();
 	}
 	channel->addToInvite(*toInvite);
