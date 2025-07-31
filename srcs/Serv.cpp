@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:38:05 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 11:06:30 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 #include "KickCmd.hpp"
 #include "InviteCmd.hpp"
 #include "TopicCmd.hpp"
+#include "PartCmd.hpp"
+#include "PrvCmd.hpp"
+#include "ModeCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -25,7 +28,10 @@ Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_pass = arg[2];
 }
 
-Serv::~Serv( void ) {}
+Serv::~Serv( void ) {
+    std::cout << "Serv destructor called" << std::endl;
+    this->shutdown();
+}
 
 void Serv::createTcpServerSocket( void ) {
     this->_socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,6 +56,11 @@ void Serv::shutdown( void ) {
             fd = -1;
         }
     }
+    for (size_t i = 0; i < this->_channels.size(); ++i) {
+        delete this->_channels[i];
+    }
+    this->_channels.clear();
+    this->_channels.~vector();
     this->_connections.clear();
     if (this->_epollfd != -1)
         close(this->_epollfd);
@@ -94,6 +105,21 @@ ACmd*	Serv::topic( std::vector<std::string> tokens )
 	return (new TopicCmd(tokens, *this));
 }
 
+ACmd*	Serv::part( std::vector<std::string> tokens )
+{
+	return (new PartCmd(tokens, *this));
+}
+
+ACmd*	Serv::prv( std::vector<std::string> tokens )
+{
+	return (new PrvCmd(tokens, *this));
+}
+
+ACmd*	Serv::mode( std::vector<std::string> tokens )
+{
+	return (new ModeCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -102,19 +128,21 @@ const std::map<int, Client>& Serv::getConnections( void ) const {
     return (this->_connections);
 }
 
-std::vector<Channel>& Serv::getChannels( void ){
+std::vector<Channel*>& Serv::getChannels( void ){
     return (this->_channels);
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
 
     while (ss >> word) {
+        std::cout << word;
         tokens.push_back(word);
     }
+    std::cout << std::endl;
     if (tokens.empty()) {
         throw std::runtime_error("Empty command");
     }
@@ -126,6 +154,9 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::kick,
         &Serv::invite,
         &Serv::topic,
+        &Serv::part,
+        &Serv::prv,
+        &Serv::mode,
 	};
 
     if (!client.getAuth()) {
@@ -137,6 +168,8 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
     }
     for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
+            std::string m = ERR_NOTREGISTERED(client.getNick());
+            send(client.getFd(), m.c_str(), m.size(), 0);
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
@@ -146,6 +179,8 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
             return (this->*cmds[i])(tokens);
         }
     }
+    // std::string m = ERR_(client.getNick());
+    // send(client.getFd(), m.c_str(), m.size(), 0);
     throw Serv::CmdNotFoundException();
     return (NULL);
 }
@@ -237,8 +272,26 @@ void Serv::run( void ) {
                             if (!client.getAuth()) {
                                 client.setAuth(client.checkAuth());
                                 if (client.getAuth()) {
-                                    this->sendToClient(client, "001", "");
-                                    this->sendToClient(client, "002", "");
+                                    std::string m = "";
+                                    std::ostringstream oss;
+			                        oss << std::time(NULL);
+                                    std::string str = oss.str();
+                                    m = RPL_WELCOME(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_YOURHOST(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_CREATED(client.getNick(), str);
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MYINFO(client.getNick(), "1.0.0", "", "");
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_YOUREOPER(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MOTDSTART(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MOTD(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_ENDOFMOTD(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
                                 }
                             }
                         }
@@ -256,9 +309,9 @@ void Serv::run( void ) {
 void Serv::sendToClient( Client& client, const std::string& code, const std::string& message ) {
 	std::string fullMsg = ":" + this->_name + " " + code + " " + client.getNick();
 	if (code == "001")
-		fullMsg += " :Welcome to the " + this->_name + " Network, " + client.getNick() + " [!" + client.getUser() + "@<host>]\r\n";
+		fullMsg += " :Welcome to the " + this->_name + " Network, " + client.getNick() + "[!" + client.getUser() + "@localhost]\r\n";
 	else if (code == "002")
-		fullMsg += " :Your host is " + this->_name + " , running version <version>\r\n";
+		fullMsg += " :Your host is " + this->_name + ", running version 1.0.0\r\n";
     else if /*[cl, cmd]*/ (code == "461" || code == "421")
         fullMsg += message;
     else if /*[cl, channel]*/ (code == "403" || code == "404" || code == "405" \
@@ -277,10 +330,10 @@ void Serv::sendToClient( Client& client, const std::string& code, const std::str
 }
 
 Channel* Serv::getChannelByName( std::string& name ) {
-    std::vector<Channel>::iterator it = this->_channels.begin();
+    std::vector<Channel*>::iterator it = this->_channels.begin();
     for (; it != this->_channels.end(); ++it) {
-        if (name == it->getName())
-            return &(*it);
+        if (name == (*it)->getName())
+            return (*it);
     }
     return (NULL);
 }

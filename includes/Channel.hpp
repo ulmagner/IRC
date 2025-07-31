@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 15:23:50 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:58:41 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class Channel {
         std::vector<std::string> _mode;
         std::string _topicSetter;
         time_t _topicSetTime;
-        std::map<int, Client> _clientConnected;
-        std::vector<Client> _inviteClient;
+        std::map<int, std::pair<Client*, int> > _clientConnected;
+        std::vector<Client*> _inviteClient;
     public:
         Channel( std::string& name, std::string& key, Client& client );
         ~Channel( void );
@@ -38,14 +38,18 @@ class Channel {
         const std::string& getTopic( void ) const;
         const std::string& getTopicSetter( void ) const;
         void setTopicSetter( const std::string& nick );
-        std::map<int, Client>& getClients( void );
+        std::map<int, std::pair<Client*, int> >& getClients( void );
         bool hasAlreadyJoin( int fd );
+        void setOp( int fd, int o );
 		void setName( const std::string& attPath );
 		void setKey( const std::string& attNick );
         void setTopic( const std::string& topic );
         void addClient( Client& client );
-        void addMode( std::string& mode );
-        bool getMode( const std::string& mode ) const;
+        void removeClient( const std::string& nick );
+        void addMode( const std::string& mode );
+        void removeMode( const std::string& mode );
+        std::string getMode( void );
+        bool hasMode( const std::string& mode ) const;
         void setTopicSetTime( time_t time );
         time_t getTopicSetTime( void ) const;
         void addToInvite( Client& client );

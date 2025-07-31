@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:25:50 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 20:27:40 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@ NickCmd::NickCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 NickCmd::~NickCmd( void ) {}
 
 void NickCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 1 || this->_tokens.size() > 2) {
+	std::string m = "";
+	if (this->_tokens.size() < 2) {
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw NickCmd::FormatException();
 	}
 	if (client.getPass().empty())
@@ -26,7 +29,8 @@ void NickCmd::executeCmd( Client& client ) {
 	if (!client.getNick().empty())
 		throw NickCmd::ErrorException();
 	if (this->_tokens.size() == 1) {
-		this->_serv.sendToClient(client, "431", ERR_NONICKNAMEGIVEN);
+		m = ERR_NONICKNAMEGIVEN();
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw NickCmd::FormatException();
 	}
 	client.setNick(this->_tokens[1]);
@@ -34,7 +38,8 @@ void NickCmd::executeCmd( Client& client ) {
     for (; it != this->_serv.getConnections().end(); ++it) {
         if (!it->second.getNick().empty() && it->first != client.getFd() && !it->second.getNick().compare(this->_tokens[1])) {
 			client.setNick("");
-			this->_serv.sendToClient(client, "433", this->_tokens[1] + ERR_NICKNAMEINUSE);
+			m = ERR_NICKNAMEINUSE(this->_tokens[1]);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			throw NickCmd::ErrorException();
 		}
     }

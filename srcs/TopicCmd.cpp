@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:24:25 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:43:29 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,40 +18,53 @@ TopicCmd::TopicCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[
 TopicCmd::~TopicCmd( void ) {}
 
 void TopicCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 1 || this->_tokens.size() > 3) {
-		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+	std::string m = "";
+	if (this->_tokens.size() < 2) {
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw TopicCmd::FormatException();
 	}
-	Channel* channel = this->_serv.getChannelByName(this->_tokens[1]);
+	std::string name = this->_tokens[1];
+	if (name[0] != '#') {
+		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
+		throw TopicCmd::FormatException();
+	}
+	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
-		this->_serv.sendToClient(client, "403", channel->getName() + ERR_NOSUCHCHANNEL);
+		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw TopicCmd::FormatException();
 	}
 	if (!channel->getClientByName(client.getNick())) {
-		this->_serv.sendToClient(client, "442", channel->getName() + ERR_NOTONCHANNEL);
+		m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw TopicCmd::FormatException();
 	}
 	if (this->_tokens.size() == 2) {
 		if (channel->getTopic().empty()) {
-			this->_serv.sendToClient(client, "331", this->_tokens[1] + RPL_NOTOPIC);
+			m = RPL_NOTOPIC(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		} else {
-			this->_serv.sendToClient(client, "332", this->_tokens[1] + " :" + channel->getTopic());
+			m = RPL_TOPIC(client.getNick(), name, channel->getTopic());
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
-			this->_serv.sendToClient(client, "333", this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
+			this->_serv.sendToClient(client, "333", " " + name + " " + channel->getTopicSetter() + " " + str);
 		}
 		return ;
 	}
-	if (channel->getMode("+t") && !channel->hasPerm(client)) {
-        this->_serv.sendToClient(client, "482", channel->getName() + ERR_CHANOPRIVSNEEDED);
+	if (channel->hasMode("+t") && !channel->hasPerm(client)) {
+		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw TopicCmd::FormatException();
 	}
 	channel->setTopicSetter(client.getNick());
 	channel->setTopic(this->_tokens[2]);
 	channel->setTopicSetTime(std::time(NULL));
-    std::string msg = ":" + client.getPrefix() + " TOPIC " + channel->getName() + " :" + channel->getTopic() + "\r\n";
-    sendToChannelClient(channel, msg);
+    m = SEND_TOPIC(channel->getName(), channel->getTopic());
+	sendToChannelClient(channel, m);
 }
 
 const char* TopicCmd::FormatException::what() const throw()

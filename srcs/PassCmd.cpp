@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:31:14 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/30 20:27:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,23 @@ PassCmd::PassCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]
 PassCmd::~PassCmd( void ) {}
 
 void PassCmd::executeCmd( Client& client ) {
+	std::string m = "";
 	if (this->_tokens.size() < 2) {
-		this->_serv.sendToClient(client, "461", this->_tokens[0] + ERR_NEEDMOREPARAMS);
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw PassCmd::FormatException();
 	}
 	if (!client.getPass().empty()) {
-		this->_serv.sendToClient(client, "462", ERR_ALREADYREGISTERED);
+		m = ERR_ALREADYREGISTERED(client.getNick());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw PassCmd::ErrorException();
 	}
 	std::string tok = "";
 	if (this->_tokens.size() > 1)
 		tok = this->_tokens[1];
 	if (tok != this->_serv.getPass()) {
-		this->_serv.sendToClient(client, "464", ERR_PASSWDMISMATCH);
+		m = ERR_PASSWDMISMATCH(client.getNick());
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw PassCmd::FormatException();
 	}
 	client.setPass(tok);

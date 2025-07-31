@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 18:40:32 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:42:19 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,10 @@ std::vector<std::string> split( const std::string& s, char delimiter ) {
 }
 
 void JoinCmd::executeCmd( Client& client ) {
-	if (this->_tokens.size() < 2 || this->_tokens.size() > 3) {
-		this->_serv.sendToClient(client, "461", ERR_NEEDMOREPARAMS);
+	std::string m = "";
+	if (this->_tokens.size() < 2) {
+		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw JoinCmd::FormatException();
 	}
 	std::vector<std::string> chan = split(this->_tokens[1], ',');
@@ -37,19 +39,29 @@ void JoinCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() > 2)
 		keys = split(this->_tokens[2], ',');
 	std::vector<std::string>::const_iterator itt = chan.begin();
+	std::vector<std::string>::const_iterator kt = keys.begin();
 	for (;itt != chan.end(); ++itt) {
 		std::string name = *itt;
 		std::string key = "";
-		if (itt != keys.end())
-			key = *itt;
+		if (kt != keys.end()) {
+			key = *kt;
+			++kt;
+		}
+		if (name[0] != '#') {
+			m = ERR_NOSUCHCHANNEL(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
+			continue ;
+		}
 		Channel* channel = this->_serv.getChannelByName(name);
 		if (channel) {
-			if (channel->getMode("+i") && !channel->getInvite(client.getNick())) {
-				this->_serv.sendToClient(client, "473", name + ERR_INVITEONLYCHAN);
+			if (channel->hasMode("+i") && !channel->getInvite(client.getNick())) {
+				m = ERR_INVITEONLYCHAN(client.getNick(), name);
+				send(client.getFd(), m.c_str(), m.size(), 0);
 				throw Channel::FormatException();
 			}
 			if (key != channel->getKey()) {
-				this->_serv.sendToClient(client, "475", name + ERR_BADCHANNELKEY);
+				m = ERR_BADCHANNELKEY(client.getNick(), name);
+				send(client.getFd(), m.c_str(), m.size(), 0);
 				continue ;
 			}
 			if (!channel->hasAlreadyJoin(client.getFd())) {
@@ -59,34 +71,40 @@ void JoinCmd::executeCmd( Client& client ) {
 			}
 		}
 		else {
-			// this->sendToClient(client, "403", name + ERR_NOSUCHCHANNEL);
-			this->_serv.getChannels().push_back(Channel(name, key, client));
-			channel = &this->_serv.getChannels().back();
-			std::string modeMsg = ":" + this->_serv._name + " MODE " + name + " +o " + client.getNick() + "\r\n";
-			send(client.getFd(), modeMsg.c_str(), modeMsg.size(), 0);
+			Channel* newChan = new Channel(name, key, client);
+			if (!key.empty())
+				channel->addMode("+k");
+			this->_serv.getChannels().push_back(newChan);
+			channel = newChan;
+			m = RPL_MODE(client.getNick(), client.getUser(), name, "+o");
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		}
-		std::string msg = client.getPrefix() + " JOIN :" + name + "\r\n";
-		send(client.getFd(), msg.c_str(), msg.size(), 0);
+		m = JOIN_CHANNEL(client.getNick(), client.getUser(), name);
+		sendToChannelClient(channel, m);
 		if (channel->getTopic().empty()) {
-			this->_serv.sendToClient(client, "331", name + RPL_NOTOPIC);
+			m = RPL_NOTOPIC(client.getNick(), name);
+			send(client.getFd(), m.c_str(), m.size(), 0);
 		} else {
-			this->_serv.sendToClient(client, "332", name + " :" + channel->getTopic());
+			m = RPL_TOPIC(client.getNick(), name, channel->getTopic());
+			send(client.getFd(), m.c_str(), m.size(), 0);
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
-			this->_serv.sendToClient(client, "333", this->_tokens[1] + " " + channel->getTopicSetter() + " " + str);
+			this->_serv.sendToClient(client, "333", " " + this->_tokens[1] + " " + channel->getTopicSetter() + " " + str + "\r\n");
 		}
-		std::map<int, Client>::const_iterator at = channel->getClients().begin();
-		msg = ":" + this->_serv._name + " 353 " + client.getNick() + " = " + name + " :";
+		std::map<int, std::pair<Client *, int> >::const_iterator at = channel->getClients().begin();
+		std::string ms = "";
 		for (;at != channel->getClients().end();++at) {
-			msg += " ";
-			if (at->first == 1)
-				msg += "@";
-			msg += at->second.getNick();
+			if (at != channel->getClients().begin())
+				ms += " ";
+			if (at->second.second == 1)
+				ms += "@";
+			ms += at->second.first->getNick();
 		}
-		msg += "\r\n";
-		send(client.getFd(), msg.c_str(), msg.size(), 0);
-		this->_serv.sendToClient(client, "366", name + RPL_ENDOFNAMES);
+		m = RPL_NAMREPLY(client.getNick(), name, ms);
+		sendToChannelClient(channel, m);
+		m = RPL_ENDOFNAMES(client.getNick(), name);
+		send(client.getFd(), m.c_str(), m.size(), 0);
 	}
 }
 
