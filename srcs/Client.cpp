@@ -6,13 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:06:50 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 19:11:43 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client( int fd ) : _fd(fd), _user(""), _nick(""), _host(""), _real(""), _pass(""), _isAuth(false), _operator(false) {}
+Client::Client( int fd ) : _fd(fd), _user(""), _nick(""), _host(""), _real(""), _pass(""), _isAuth(false), _operator(false), _money(1000) {}
 
 Client::~Client( void ) {}
 
@@ -34,6 +34,26 @@ void Client::setAuth( bool attAuth ) {
 
 int Client::getFd( void ) const {
 	return (this->_fd);
+}
+
+std::pair<Card, Card>& Client::getCards( void ) {
+	return (_cards);
+}
+
+void Client::setCards( const std::pair<Card, Card>& cards ) {
+	this->_cards = cards;
+}
+
+void Client::setPlaying( bool s ) {
+	this->_playing = s;
+}
+
+bool Client::getPlaying( void ) {
+	return (this->_playing);
+}
+
+void Client::bet( int bet ) {
+	this->_money -= bet;
 }
 
 const bool& Client::getAuth( void ) const {

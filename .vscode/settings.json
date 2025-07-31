@@ -51,6 +51,8 @@
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
 		"csignal": "cpp",
-		"map": "cpp"
+		"map": "cpp",
+		"chrono": "cpp",
+		"ratio": "cpp"
 	}
 }

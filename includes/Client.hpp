@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:06:43 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 20:17:14 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <exception>
 #include <iostream>
 #include <vector>
+#include "Card.hpp"
+#include "Poker.hpp"
 
 class Client {
     private:
@@ -28,6 +30,9 @@ class Client {
         std::vector<std::string> _mode;
 		bool _isAuth;
         bool _operator;
+        int _money;
+        std::pair<Card, Card> _cards;
+        bool _playing;
     public:
         Client( int fd );
         ~Client( void );
@@ -43,10 +48,17 @@ class Client {
 		void setUser( const std::string& attUser );
 		void setAuth( bool attAuth );
 		void setOp( bool op );
+        void setPlaying( bool s );
+        bool getPlaying( void );
+        void fold( void );
+        void ask( void );
+        void bet( int bet );
 		bool checkAuth( void );
         void addMode( const std::string& mode );
         void removeMode( const std::string& mode );
         std::string getMode( void );
+        std::pair<Card, Card>& getCards( void );
+        void setCards( const std::pair<Card, Card>& cards );
         bool hasMode( const std::string& mode ) const;
         class FormatException : public std::exception
         {

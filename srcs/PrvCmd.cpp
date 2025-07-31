@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 19:07:20 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:58:36 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 19:54:39 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,16 @@
 
 PrvCmd::PrvCmd( std::vector<std::string> tokens, Serv& serv ) : ACmd(tokens[0]), _tokens(tokens), _serv(serv) {}
 
-PrvCmd::~PrvCmd( void ) {}
+PrvCmd::~PrvCmd( void ) {
+	delete this->_poker;
+}
+
+int stringToInt(const std::string& str) {
+    std::stringstream ss(str);
+    int result;
+    ss >> result;
+    return result;
+}
 
 void PrvCmd::executeCmd( Client& client ) {
 	std::string m = "";
@@ -43,6 +52,42 @@ void PrvCmd::executeCmd( Client& client ) {
 				m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
 				send(client.getFd(), m.c_str(), m.size(), 0);
 				continue ;
+			}
+			if (reason == ":!bot" && !channel->getPlaying()) {
+				this->_poker = new Poker(0, channel->getClients());
+				channel->setPlaying(true);
+				std::map<int, std::pair<Client *, int> >::const_iterator it = channel->getClients().begin();
+				for (;it != channel->getClients().end(); ++it) {
+					m = "Your cards: " + it->second.first->getCards().first.toString() + " " + it->second.first->getCards().second.toString() + "\r\n";
+					send(it->second.first->getFd(), m.c_str(), m.size(), 0);
+				}
+				m = "Check Fold Ask:\r\n";
+				send(client.getFd(), m.c_str(), m.size(), 0);
+				client.setPlaying(true);
+				continue ;
+			}
+			if (client.getPlaying()) {
+				int bet = this->_poker->getBet();
+				if (reason.substr(1) == "Fold") {
+					this->_poker->setFold(client.getFd());
+				}
+				else if (reason.substr(1) == "Check") {
+					client.bet(bet);
+					this->_poker->setMoney(bet);
+				}
+				else if (reason.substr(1) == "Ask") {
+					client.bet(stringToInt(this->_tokens[3]));
+					this->_poker->setMoney(stringToInt(this->_tokens[3]));
+					this->_poker->setBet(stringToInt(this->_tokens[3]));
+				}
+				client.setPlaying(false);
+				Client *next = this->_poker->getNextPlayer(client.getFd());
+				// if (!next) {
+
+				// }
+				next->setPlaying(true);
+				m = "Check Fold Ask:\r\n";
+				send(next->getFd(), m.c_str(), m.size(), 0);
 			}
 			m = ":" + client.getPrefix() + " PRIVMSG " + channel->getName() + " " + reason + "\r\n";
 			std::map<int, std::pair<Client *, int> >::const_iterator it = channel->getClients().begin();
