@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 11:35:40 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:43:29 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ void TopicCmd::executeCmd( Client& client ) {
 		} else {
 			m = RPL_TOPIC(client.getNick(), name, channel->getTopic());
 			send(client.getFd(), m.c_str(), m.size(), 0);
-			// this->_serv.sendToClient(client, "332", " " + name + " :" + channel->getTopic());
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
@@ -64,7 +63,6 @@ void TopicCmd::executeCmd( Client& client ) {
 	channel->setTopicSetter(client.getNick());
 	channel->setTopic(this->_tokens[2]);
 	channel->setTopicSetTime(std::time(NULL));
-    // std::string msg = ":" + client.getPrefix() + " TOPIC " + channel->getName() + " :" + channel->getTopic() + "\r\n";
     m = SEND_TOPIC(channel->getName(), channel->getTopic());
 	sendToChannelClient(channel, m);
 }

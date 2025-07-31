@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 11:35:22 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:42:19 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,14 @@ void JoinCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() > 2)
 		keys = split(this->_tokens[2], ',');
 	std::vector<std::string>::const_iterator itt = chan.begin();
+	std::vector<std::string>::const_iterator kt = keys.begin();
 	for (;itt != chan.end(); ++itt) {
 		std::string name = *itt;
 		std::string key = "";
-		if (itt != keys.end())
-			key = *itt;
+		if (kt != keys.end()) {
+			key = *kt;
+			++kt;
+		}
 		if (name[0] != '#') {
 			m = ERR_NOSUCHCHANNEL(client.getNick(), name);
 			send(client.getFd(), m.c_str(), m.size(), 0);
@@ -69,6 +72,8 @@ void JoinCmd::executeCmd( Client& client ) {
 		}
 		else {
 			Channel* newChan = new Channel(name, key, client);
+			if (!key.empty())
+				channel->addMode("+k");
 			this->_serv.getChannels().push_back(newChan);
 			channel = newChan;
 			m = RPL_MODE(client.getNick(), client.getUser(), name, "+o");

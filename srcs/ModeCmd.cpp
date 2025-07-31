@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 11:04:14 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:02:21 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:58:53 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,36 @@ void ModeCmd::executeCmd( Client& client ) {
 		}
 		m = RPL_MODE(client.getNick(), client.getUser(), channel->getName(), mode);
 		send(client.getFd(), m.c_str(), m.size(), 0);
-		if (mode[0] == '+')
+		if (mode[0] == '+') {
 			channel->addMode(mode);
-		else
+			std::string key = "";
+			if (mode[1] == 'k' && this->_tokens.size() == 4)
+				key = this->_tokens[3];
+			channel->setKey(key);				
+			if (mode[1] == 'o' && this->_tokens.size() == 4) {
+				Client* cc = channel->getClientByName(this->_tokens[3]);
+				if (!cc) {
+					m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
+					send(client.getFd(), m.c_str(), m.size(), 0);
+					throw ModeCmd::FormatException();
+				}
+				channel->setOp(cc->getFd(), 1);
+			}
+		}
+		else {
 			channel->removeMode(mode);
+			if (mode[1] == 'k')
+				channel->setKey("");
+			if (mode[1] == 'o' && this->_tokens.size() == 4) {
+				Client* cc = channel->getClientByName(this->_tokens[3]);
+				if (!cc) {
+					m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
+					send(client.getFd(), m.c_str(), m.size(), 0);
+					throw ModeCmd::FormatException();
+				}
+				channel->setOp(cc->getFd(), 0);
+			}
+		}
 	}
 	else {
 		Client* cl = this->_serv.getClientByName(name);
@@ -78,8 +104,9 @@ void ModeCmd::executeCmd( Client& client ) {
 		}
 		m = RPL_MODE(client.getNick(), client.getUser(), cl->getNick(), mode);
 		send(cl->getFd(), m.c_str(), m.size(), 0);
-		if (mode[0] == '+')
+		if (mode[0] == '+') {
 			cl->addMode(mode);
+		}
 		else
 			cl->removeMode(mode);
 	}

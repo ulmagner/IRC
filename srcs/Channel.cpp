@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:06:39 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:58:50 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,13 @@ void Channel::eraseFromInvite( const std::string& nick ) {
 
 void Channel::setTopic( const std::string& topic )  {
 	this->_topic = topic;
+}
+
+void Channel::setOp( int fd, int o ) {
+	std::map<int, std::pair<Client*, int> >::iterator i = this->_clientConnected.find(fd);
+	if (i != this->_clientConnected.end()) {
+		i->second.second = o;
+	}
 }
 
 void Channel::removeClient( const std::string& nick ) {

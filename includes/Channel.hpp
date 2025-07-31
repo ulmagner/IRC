@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:06:47 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:58:41 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Channel {
         void setTopicSetter( const std::string& nick );
         std::map<int, std::pair<Client*, int> >& getClients( void );
         bool hasAlreadyJoin( int fd );
+        void setOp( int fd, int o );
 		void setName( const std::string& attPath );
 		void setKey( const std::string& attNick );
         void setTopic( const std::string& topic );
