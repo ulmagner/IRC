@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 18:28:23 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:06:39 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ const std::string& Channel::getTopicSetter( void ) const {
 	return (this->_topicSetter);
 }
 
-bool Channel::getMode( const std::string& mode ) const {
+bool Channel::hasMode( const std::string& mode ) const {
 	std::vector<std::string>::const_iterator it = this->_mode.begin();
 	for(;it != this->_mode.end();) {
 		if (*it == mode)
@@ -73,7 +73,33 @@ void Channel::setTopicSetter( const std::string& nick ) {
 }
 
 void Channel::addMode( const std::string& mode ) {
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end(); ++it) {
+		if (*it == mode)
+			return ;
+	}
 	this->_mode.push_back(mode);
+}
+
+void Channel::removeMode( const std::string& mode ) {
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end();) {
+		if ((*it)[1] == mode[1])
+			it = this->_mode.erase(it);
+		else
+			++it;
+	}
+}
+
+std::string Channel::getMode( void ) {
+	std::string m = "";
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end(); ++it) {
+		if (it == this->_mode.begin())
+			m += "+";
+		m += (*it).substr(1);
+	}
+	return (m);
 }
 
 void Channel::addToInvite( Client& client ) {

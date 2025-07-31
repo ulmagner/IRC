@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 11:05:38 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:06:50 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,45 @@ const bool& Client::getOp( void ) const {
 
 void Client::setOp( bool op ) {
 	this->_operator = op;
+}
+
+bool Client::hasMode( const std::string& mode ) const {
+	std::vector<std::string>::const_iterator it = this->_mode.begin();
+	for(;it != this->_mode.end();) {
+		if (*it == mode)
+			return (true);
+	}
+	return (false);
+}
+
+void Client::addMode( const std::string& mode ) {
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end(); ++it) {
+		if (*it == mode)
+			return ;
+	}
+	this->_mode.push_back(mode);
+}
+
+void Client::removeMode( const std::string& mode ) {
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end();) {
+		if ((*it)[1] == mode[1])
+			it = this->_mode.erase(it);
+		else
+			++it;
+	}
+}
+
+std::string Client::getMode( void ) {
+	std::string m = "";
+	std::vector<std::string>::iterator it = this->_mode.begin();
+	for (; it != this->_mode.end(); ++it) {
+		if (it == this->_mode.begin())
+			m += "+";
+		m += (*it).substr(1);
+	}
+	return (m);
 }
 
 bool Client::checkAuth( void ) {

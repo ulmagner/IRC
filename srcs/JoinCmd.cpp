@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:17:41 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 21:02:49 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 11:35:22 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void JoinCmd::executeCmd( Client& client ) {
 		}
 		Channel* channel = this->_serv.getChannelByName(name);
 		if (channel) {
-			if (channel->getMode("+i") && !channel->getInvite(client.getNick())) {
+			if (channel->hasMode("+i") && !channel->getInvite(client.getNick())) {
 				m = ERR_INVITEONLYCHAN(client.getNick(), name);
 				send(client.getFd(), m.c_str(), m.size(), 0);
 				throw Channel::FormatException();

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 21:00:21 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:00:30 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@
 
 #define RPL_INVITING(client, nick, channel) ":localhost 341 " + client + " " + nick + " " + channel + "" RESET_COLOR "\r\n"
 
+#define RPL_CREATIONTIME(client, channel, datetime) ":localhost 329 " + client + " " + channel + " " RPL_COLOR + datetime + "" RESET_COLOR "\r\n"
+#define RPL_UMODEIS(client, nick, mode) ":localhost 221 " + client + " " + nick + " " + mode + "" RESET_COLOR "\r\n"
 #define RPL_CHANNELMODEIS(client, channel, mode) ":localhost 324 " + client + " " + channel + " " + mode + "" RESET_COLOR "\r\n"
 #define RPL_MODE(client, user, channel, mode) ":" + client + "!" + user + "@localhost MODE " + channel + " " + mode + "" RESET_COLOR "\r\n"
 #include <vector>
@@ -113,6 +115,7 @@ class Serv {
         ACmd* topic( std::vector<std::string> tokens );
         ACmd* part( std::vector<std::string> tokens );
         ACmd* prv( std::vector<std::string> tokens );
+        ACmd* mode( std::vector<std::string> tokens );
         ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
         Client* getClientByName( const std::string& name );

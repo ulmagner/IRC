@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 18:02:25 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:06:47 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,9 @@ class Channel {
         void addClient( Client& client );
         void removeClient( const std::string& nick );
         void addMode( const std::string& mode );
-        bool getMode( const std::string& mode ) const;
+        void removeMode( const std::string& mode );
+        std::string getMode( void );
+        bool hasMode( const std::string& mode ) const;
         void setTopicSetTime( time_t time );
         time_t getTopicSetTime( void ) const;
         void addToInvite( Client& client );

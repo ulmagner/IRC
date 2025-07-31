@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 21:00:14 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 11:06:30 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "TopicCmd.hpp"
 #include "PartCmd.hpp"
 #include "PrvCmd.hpp"
+#include "ModeCmd.hpp"
 
 Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
     this->_port = this->isValidPort(arg[1]);
@@ -114,6 +115,11 @@ ACmd*	Serv::prv( std::vector<std::string> tokens )
 	return (new PrvCmd(tokens, *this));
 }
 
+ACmd*	Serv::mode( std::vector<std::string> tokens )
+{
+	return (new ModeCmd(tokens, *this));
+}
+
 const std::string& Serv::getPass( void ) const {
 	return (this->_pass);
 }
@@ -127,7 +133,7 @@ std::vector<Channel*>& Serv::getChannels( void ){
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -150,6 +156,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::topic,
         &Serv::part,
         &Serv::prv,
+        &Serv::mode,
 	};
 
     if (!client.getAuth()) {
@@ -265,8 +272,26 @@ void Serv::run( void ) {
                             if (!client.getAuth()) {
                                 client.setAuth(client.checkAuth());
                                 if (client.getAuth()) {
-                                    this->sendToClient(client, "001", "");
-                                    this->sendToClient(client, "002", "");
+                                    std::string m = "";
+                                    std::ostringstream oss;
+			                        oss << std::time(NULL);
+                                    std::string str = oss.str();
+                                    m = RPL_WELCOME(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_YOURHOST(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_CREATED(client.getNick(), str);
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MYINFO(client.getNick(), "1.0.0", "", "");
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_YOUREOPER(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MOTDSTART(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_MOTD(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
+                                    m = RPL_ENDOFMOTD(client.getNick());
+                                    send(client.getFd(), m.c_str(), m.size(), 0);
                                 }
                             }
                         }

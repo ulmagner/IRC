@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/28 11:05:37 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 12:06:43 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <string>
 #include <exception>
 #include <iostream>
+#include <vector>
 
 class Client {
     private:
@@ -24,6 +25,7 @@ class Client {
         std::string _host;
         std::string _real;
         std::string _pass;
+        std::vector<std::string> _mode;
 		bool _isAuth;
         bool _operator;
     public:
@@ -42,6 +44,10 @@ class Client {
 		void setAuth( bool attAuth );
 		void setOp( bool op );
 		bool checkAuth( void );
+        void addMode( const std::string& mode );
+        void removeMode( const std::string& mode );
+        std::string getMode( void );
+        bool hasMode( const std::string& mode ) const;
         class FormatException : public std::exception
         {
             public:

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:44:22 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 11:35:31 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void InviteCmd::executeCmd( Client& client ) {
 		m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
 	}
-	else if (is_i == 1 && channel->getMode("+i")) {
+	else if (is_i == 1 && channel->hasMode("+i")) {
 		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw InviteCmd::FormatException();

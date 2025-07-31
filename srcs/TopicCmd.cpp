@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:52:32 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 11:35:40 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void TopicCmd::executeCmd( Client& client ) {
 		}
 		return ;
 	}
-	if (channel->getMode("+t") && !channel->hasPerm(client)) {
+	if (channel->hasMode("+t") && !channel->hasPerm(client)) {
 		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw TopicCmd::FormatException();

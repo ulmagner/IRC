@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:37:12 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/07/31 10:43:17 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void KickCmd::executeCmd( Client& client ) {
 	}
 	std::map<int, std::pair<Client *, int> >& cl = channel->getClients();
 	std::vector<std::string> cl_name = split(this->_tokens[2], ',');
-	std::string reason = (this->_tokens.size() == 4) ? this->_tokens[3] : "";
+	std::string reason = (this->_tokens.size() == 4) ? this->_tokens[3] : "because";
 	std::vector<std::string>::const_iterator cl_it = cl_name.begin();
 	bool is = false;
 	for (;cl_it != cl_name.end(); ++cl_it) {
