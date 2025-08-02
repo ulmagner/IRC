@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:58:41 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 03:14:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <vector>
 #include "Client.hpp"
 
+class Client;
+
 class Channel {
     private:
 		std::string _name;
@@ -29,6 +31,7 @@ class Channel {
         time_t _topicSetTime;
         std::map<int, std::pair<Client*, int> > _clientConnected;
         std::vector<Client*> _inviteClient;
+        bool _isPlaying;
     public:
         Channel( std::string& name, std::string& key, Client& client );
         ~Channel( void );
@@ -41,6 +44,8 @@ class Channel {
         std::map<int, std::pair<Client*, int> >& getClients( void );
         bool hasAlreadyJoin( int fd );
         void setOp( int fd, int o );
+        void setPlaying( bool s );
+        bool getPlaying( void );
 		void setName( const std::string& attPath );
 		void setKey( const std::string& attNick );
         void setTopic( const std::string& topic );
@@ -53,10 +58,12 @@ class Channel {
         void setTopicSetTime( time_t time );
         time_t getTopicSetTime( void ) const;
         void addToInvite( Client& client );
+        void bot();
         void eraseFromInvite( const std::string& nick );
         bool hasPerm( Client& client ) const;
         const Client* getInvite( const std::string& name ) const;
-        Client* getClientByName( const std::string& name );
+        template<typename T>
+        Client* getClientByName( const T& t );
         class FormatException : public std::exception
         {
             public:
@@ -73,5 +80,7 @@ class Channel {
                 virtual const char* what() const throw();
         };
 };
+
+#include "Channel.tpp"
 
 #endif //Channel_hpp

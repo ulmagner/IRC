@@ -6,13 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:58:50 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 03:03:55 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
-Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key), _topic(""), _topicSetter(""), _topicSetTime(0) {
+Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key), _topic(""), _topicSetter(""), _topicSetTime(0), _isPlaying(false) {
 	this->_clientConnected[client.getFd()] = std::make_pair(&client, 1);
 	client.setOp(true);
 }
@@ -29,6 +29,14 @@ void Channel::setName( const std::string& attName ) {
 
 void Channel::setKey( const std::string& attKey ) {
 	this->_key = attKey;
+}
+
+void Channel::setPlaying( bool s ) {
+	this->_isPlaying = s;
+}
+
+bool Channel::getPlaying( void ) {
+	return (this->_isPlaying);
 }
 
 void Channel::addClient( Client& client ) {
@@ -91,6 +99,24 @@ void Channel::removeMode( const std::string& mode ) {
 	}
 }
 
+void Channel::bot() {
+	std::string m = "";
+	std::string number[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
+	std::string color[] = {"heart", "diamond", "spade", "clover"};
+	std::map<std::pair<std::string, std::string>, std::string> cards;
+	for (size_t j = 0; j < 4; ++j) {
+		for (size_t i = 0; i < 13; ++i) {
+        	std::pair<std::string, std::string> card = std::make_pair(number[i], color[j]);
+			cards[card] = number[i] + " of " + color[j];
+		}
+	}
+
+	std::map<int, std::pair<Client*, int> >::iterator it = this->getClients().begin();
+	for (; it != this->getClients().end(); ++it) {
+		
+	}
+}
+
 std::string Channel::getMode( void ) {
 	std::string m = "";
 	std::vector<std::string>::iterator it = this->_mode.begin();
@@ -146,16 +172,6 @@ bool Channel::hasPerm( Client& client ) const {
 		return (it->second.second == 1);
 	}
 	return (false);
-}
-
-Client* Channel::getClientByName( const std::string& name ) {
-	std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.begin();
-	for (;it != this->_clientConnected.end(); ++it) {
-		if (name == it->second.first->getNick()) {
-			return (it->second.first);
-		}
-	}
-	return (NULL);
 }
 
 const Client* Channel::getInvite( const std::string& name ) const {

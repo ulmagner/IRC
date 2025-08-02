@@ -22,14 +22,13 @@
 #include <vector>
 #include <list>
 #include <algorithm>
-#include <ctime>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <csignal>
-#include "Client.hpp"
+#include "Channel.hpp"
 
 class Client;
 class Serv;
