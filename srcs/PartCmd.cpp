@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 18:43:44 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:27:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/01 14:58:48 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ void PartCmd::executeCmd( Client& client ) {
 			send(client.getFd(), m.c_str(), m.size(), 0);
 			continue ;
 		}
+		channel->removeClient( client.getNick() );
 		std::string msg = ":" + client.getPrefix() + " PART " + channel->getName() + " " + reason + "\r\n";
 		sendToChannelClient(channel, msg);
-		channel->removeClient( client.getNick() );
 	}
 }
 

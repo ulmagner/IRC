@@ -53,6 +53,12 @@
 		"csignal": "cpp",
 		"map": "cpp",
 		"chrono": "cpp",
-		"ratio": "cpp"
+		"ratio": "cpp",
+		"cstring": "cpp",
+		"charconv": "cpp",
+		"format": "cpp",
+		"text_encoding": "cpp",
+		"cinttypes": "cpp",
+		"variant": "cpp"
 	}
 }

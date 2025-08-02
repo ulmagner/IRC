@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 12:00:30 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 03:14:02 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,6 @@
 #include <map>
 #include <exception>
 #include "ACmd.hpp"
-#include "Client.hpp"
-#include "Channel.hpp"
 
 class Serv {
     private:

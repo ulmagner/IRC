@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:55:55 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 19:11:43 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/01 23:17:11 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,10 @@ int Client::getFd( void ) const {
 	return (this->_fd);
 }
 
+int Client::getMoney( void ) const {
+	return (this->_money);
+}
+
 std::pair<Card, Card>& Client::getCards( void ) {
 	return (_cards);
 }
@@ -54,6 +58,14 @@ bool Client::getPlaying( void ) {
 
 void Client::bet( int bet ) {
 	this->_money -= bet;
+}
+
+void Client::setMoney( int m ) {
+	this->_money = m;
+}
+
+void Client::addMoney( int m ) {
+	this->_money += m;
 }
 
 const bool& Client::getAuth( void ) const {

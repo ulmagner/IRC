@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 19:07:48 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 18:52:47 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/01 23:32:55 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ class PrvCmd : public ACmd {
         Poker* _poker;
     public:
         PrvCmd( std::vector<std::string> tokens, Serv& serv );
+        void annonceTurn( Poker* poker, Channel* channel );
+        void startPoker( Channel* channel, Client& client );
+        void PokerTurn( Client& client, Channel* channel, std::string& reason );
         ~PrvCmd( void );
         void executeCmd( Client& client );
         class FormatException : public std::exception

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 16:22:01 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 20:16:33 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 02:26:19 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ class Card {
 			};
 			return names[_value] + std::string(" of ") + _suit;
 		}
+
+		int getValue( void ) { return (_value); }
+		std::string getSuits( void ) { return (_suit); }
 };
 
 #endif //Card_hpp

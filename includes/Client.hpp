@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 20:17:14 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/01 23:16:53 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@ class Client {
         Client( int fd );
         ~Client( void );
 		int getFd( void ) const;
+        int getMoney( void ) const;
+        void addMoney( int m );
+        void setMoney( int m );
 		const std::string& getNick( void ) const;
 		const std::string& getUser( void ) const;
 		const std::string& getPass( void ) const;
@@ -50,8 +53,6 @@ class Client {
 		void setOp( bool op );
         void setPlaying( bool s );
         bool getPlaying( void );
-        void fold( void );
-        void ask( void );
         void bet( int bet );
 		bool checkAuth( void );
         void addMode( const std::string& mode );

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 19:59:02 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 03:14:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <map>
 #include <vector>
 #include "Client.hpp"
+
+class Client;
 
 class Channel {
     private:
@@ -60,7 +62,8 @@ class Channel {
         void eraseFromInvite( const std::string& nick );
         bool hasPerm( Client& client ) const;
         const Client* getInvite( const std::string& name ) const;
-        Client* getClientByName( const std::string& name );
+        template<typename T>
+        Client* getClientByName( const T& t );
         class FormatException : public std::exception
         {
             public:
@@ -77,5 +80,7 @@ class Channel {
                 virtual const char* what() const throw();
         };
 };
+
+#include "Channel.tpp"
 
 #endif //Channel_hpp

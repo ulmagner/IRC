@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 17:38:51 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 03:03:55 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,16 +172,6 @@ bool Channel::hasPerm( Client& client ) const {
 		return (it->second.second == 1);
 	}
 	return (false);
-}
-
-Client* Channel::getClientByName( const std::string& name ) {
-	std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.begin();
-	for (;it != this->_clientConnected.end(); ++it) {
-		if (name == it->second.first->getNick()) {
-			return (it->second.first);
-		}
-	}
-	return (NULL);
 }
 
 const Client* Channel::getInvite( const std::string& name ) const {
