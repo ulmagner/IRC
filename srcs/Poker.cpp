@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 20:11:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 02:55:09 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 20:02:42 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,14 @@ Poker::Poker( int money, std::map<int, std::pair<Client*, int> > clients, int fd
 	}
 
 	this->_players.clear();
-	int key = 1;
 	std::srand(std::time(0));
 	std::random_shuffle(this->_deck.begin(), this->_deck.end());
 	std::map<int, std::pair<Client*, int> >::iterator it = clients.begin();
-	for (; it != clients.end(); ++it, ++key) {
+	for (; it != clients.end(); ++it) {
 		Card c1 = this->_deck.back(); this->_deck.pop_back();
 		Card c2 = this->_deck.back(); this->_deck.pop_back();
 		it->second.first->setCards(std::make_pair(c1, c2));
-		this->_players[key] = std::make_pair(it->second.first, 1);
+		this->_players[it->second.first->getFd()] = std::make_pair(it->second.first, 1);
 	}
 
 	for (size_t i = 0; i < 3; ++i) {
@@ -389,18 +388,33 @@ std::string& Poker::getWinRound( void ) {
 }
 
 Client* Poker::getNextPlayer( int fd ) {
-	std::map<int, std::pair<Client*, int> >::iterator i = this->_players.find(fd);
-	std::map<int, std::pair<Client*, int> >::iterator a = this->_players.find(this->_firstPlayer);
-	while (i != a) {
-		if (i != this->_players.end()) {
-			++i;
-			if (i == _players.end())
-				i = this->_players.begin();
-			if (i->second.second == 1) {
-				this->_fdPlayer = i->second.first->getFd();
-				break ;
-			}
-		}
+	if (_players.size() <= 1) {
+		std::cout << "?" << std::endl;
+		return (NULL);
 	}
-	return (i->second.first);
+
+	std::map<int, std::pair<Client*, int> >::iterator it = _players.find(fd);
+	std::map<int, std::pair<Client*, int> >::iterator at = _players.begin();
+	for (; at != _players.end(); ++at) {
+		std::cout << at->second.second << std::endl;
+	}
+	if (it == _players.end()) {
+		std::cout << "??" << std::endl;
+		return (NULL);
+	}
+
+	std::map<int, std::pair<Client*, int> >::iterator start = it;
+	do {
+		++it;
+		if (it == _players.end())
+			it = _players.begin();
+
+		if (it->second.second == 1) {
+			this->_fdPlayer = it->second.first->getFd();
+			return (it->second.first);
+		}
+	} while (start != it);
+
+	std::cout << "???" << std::endl;
+	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 03:14:02 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 00:02:28 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,12 +84,14 @@
 #include "ACmd.hpp"
 
 class Serv {
+    friend class PrvCmd;
     private:
         std::string _name;
         int _port;
         std::string _pass;
         int _socketfd;
         int _epollfd;
+        Poker* _poker;
         std::map<int, Client> _connections;
         std::vector<Channel*> _channels;
         int isValidPort( const std::string& port ) const;
@@ -152,6 +154,7 @@ class Serv {
 
 std::vector<std::string> split( const std::string& s, char delimiter );
 void sendToChannelClient( Channel* channel, std::string& msg );
+int stringToInt(const std::string& str);
 
 extern Serv* g_serv;
 

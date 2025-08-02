@@ -6,16 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 10:16:48 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 17:38:19 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:54:07 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef JoinCmd_hpp
 #define JoinCmd_hpp
 #include "ACmd.hpp"
-
-class Serv;
-class Client;
 
 class JoinCmd : public ACmd{
     private:

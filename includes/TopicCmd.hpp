@@ -6,16 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:01 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 17:38:51 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:54:39 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TopicCmd_hpp
 #define TopicCmd_hpp
 #include "ACmd.hpp"
-
-class Serv;
-class Client;
 
 class TopicCmd : public ACmd {
     private:

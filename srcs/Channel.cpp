@@ -6,13 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 03:03:55 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 23:58:03 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
-Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key), _topic(""), _topicSetter(""), _topicSetTime(0), _isPlaying(false) {
+Channel::Channel( std::string& name, std::string& key, Client& client ) : _name(name), _key(key), _topic(""), _topicSetter(""), _topicSetTime(0), _isPlaying(false), _chanLim(3) {
 	this->_clientConnected[client.getFd()] = std::make_pair(&client, 1);
 	client.setOp(true);
 }
@@ -29,6 +29,14 @@ void Channel::setName( const std::string& attName ) {
 
 void Channel::setKey( const std::string& attKey ) {
 	this->_key = attKey;
+}
+
+void Channel::setLim( int l ) {
+	this->_chanLim = l;
+}
+
+int Channel::getLim( void ) {
+	return (this->_chanLim);
 }
 
 void Channel::setPlaying( bool s ) {
@@ -182,6 +190,26 @@ const Client* Channel::getInvite( const std::string& name ) const {
 		}
 	}
 	return (NULL);
+}
+
+Client* Channel::getClientByName( const std::string& name ) {
+    std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.begin();
+    for (;it != this->_clientConnected.end(); ++it) {
+        if (name == it->second.first->getNick()) {
+            return (it->second.first);
+        }
+    }
+    return (NULL);
+}
+
+Client* Channel::getClientByFd( int fd ) {
+    std::map<int, std::pair<Client*, int> >::const_iterator it = this->_clientConnected.begin();
+    for (;it != this->_clientConnected.end(); ++it) {
+        if (fd == it->second.first->getFd()) {
+            return (it->second.first);
+        }
+    }
+    return (NULL);
 }
 
 bool Channel::hasAlreadyJoin( int fd ) {

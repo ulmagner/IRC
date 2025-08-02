@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <csignal>
-#include "Channel.hpp"
+#include "Client.hpp"
 
 class Client;
 class Serv;

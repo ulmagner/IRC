@@ -6,16 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 15:29:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 17:38:41 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:54:29 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PassCmd_hpp
 #define PassCmd_hpp
 #include "ACmd.hpp"
-
-class Serv;
-class Client;
 
 class PassCmd : public ACmd {
     private:

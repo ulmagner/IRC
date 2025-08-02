@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 11:06:30 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 23:07:18 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "PrvCmd.hpp"
 #include "ModeCmd.hpp"
 
-Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
+Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0), _poker(NULL) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -59,6 +59,7 @@ void Serv::shutdown( void ) {
     for (size_t i = 0; i < this->_channels.size(); ++i) {
         delete this->_channels[i];
     }
+	delete this->_poker;
     this->_channels.clear();
     this->_channels.~vector();
     this->_connections.clear();
@@ -170,6 +171,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
             std::string m = ERR_NOTREGISTERED(client.getNick());
             send(client.getFd(), m.c_str(), m.size(), 0);
+            std::cout << m << std::endl;
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
@@ -278,20 +280,28 @@ void Serv::run( void ) {
                                     std::string str = oss.str();
                                     m = RPL_WELCOME(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_YOURHOST(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_CREATED(client.getNick(), str);
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MYINFO(client.getNick(), "1.0.0", "", "");
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_YOUREOPER(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MOTDSTART(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MOTD(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_ENDOFMOTD(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                 }
                             }
                         }
