@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/03 00:02:28 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 19:22:46 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ class Serv {
         ACmd* part( std::vector<std::string> tokens );
         ACmd* prv( std::vector<std::string> tokens );
         ACmd* mode( std::vector<std::string> tokens );
+        ACmd* ping( std::vector<std::string> tokens );
         ACmd* getCmd( const char* buffer, Client& client );
         Client& getClientByFd( int fd );
         Client* getClientByName( const std::string& name );

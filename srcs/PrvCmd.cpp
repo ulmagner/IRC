@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 19:07:20 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 23:08:52 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 19:06:29 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,13 @@ void PrvCmd::annonceTurn( Poker* poker, Channel* channel ) {
 	std::string m = "";
 	std::map<int, std::pair<Client *, int> >::const_iterator it = channel->getClients().begin();
 	for (;it != channel->getClients().end(); ++it) {
-		m = "The Flop: " + poker->getCommunity() + "\r\n";
+		m = "<<<<<<<<<<< NEW TURN >>>>>>>>>>>\n\n\r\n";
 		send(it->second.first->getFd(), m.c_str(), m.size(), 0);
-		m = "Your cards: " + it->second.first->getCards().first.toString() + " " + it->second.first->getCards().second.toString() + "\r\n";
+		m = MSG_COLOR "The Flop: " RESET_COLOR + poker->getCommunity() + "\n\r\n";
 		send(it->second.first->getFd(), m.c_str(), m.size(), 0);
-		m = "You have: " + itoa(it->second.first->getMoney()) + "\r\n";
+		m = ERR_COLOR "Your cards: " RESET_COLOR + it->second.first->getCards().first.toString() + " " + it->second.first->getCards().second.toString() + "\n\r\n";
+		send(it->second.first->getFd(), m.c_str(), m.size(), 0);
+		m = RPL_COLOR "You have: " RESET_COLOR + itoa(it->second.first->getMoney()) + "\n\r\n";
 		send(it->second.first->getFd(), m.c_str(), m.size(), 0);
 	}
 }
@@ -48,7 +50,7 @@ void PrvCmd::startPoker( Channel* channel, Client& client ) {
 	this->_serv._poker = new Poker(0, channel->getClients(), client.getFd());
 	channel->setPlaying(true);
 	annonceTurn(this->_serv._poker, channel);
-	m = "Check for: " + itoa(this->_serv._poker->getBet()) + " Fold or Ask:\r\n";
+	m = "Check for: " + itoa(this->_serv._poker->getBet()) + " Fold or Ask:\n\r\n";
 	send(client.getFd(), m.c_str(), m.size(), 0);
 	client.setPlaying(true);
 	this->_serv._poker->setFd(client.getFd());
@@ -89,11 +91,11 @@ void PrvCmd::PokerTurn( Client& client, Channel* channel, std::string& reason ) 
 		if (this->_serv._poker->getTurn() && this->_serv._poker->getRiver()) {
 			Client *win = this->_serv._poker->checkHands();
 			win->addMoney(this->_serv._poker->getMoney());
-			m = win->getNick() + " WON " + itoa(this->_serv._poker->getMoney()) + " WITH A " + this->_serv._poker->getWinRound() + "\r\n";
+			m = MSG_COLOR + win->getNick() + RESET_COLOR " WON " + itoa(this->_serv._poker->getMoney()) + " WITH A " + ERR_COLOR + this->_serv._poker->getWinRound() + RESET_COLOR "\n\r\n";
 			sendToChannelClient(channel, m);
 			std::cout << m << std::endl;
 			if (this->_serv._poker->endGame(channel)) {
-				std::string m = win->getNick() + " WON THE POKER\r\n";
+				std::string m = RPL_COLOR + win->getNick() + RESET_COLOR " WON THE POKER\r\n";
 				sendToChannelClient(channel, m);
 				std::cout << m << std::endl;
 				channel->setPlaying(false);
@@ -105,11 +107,11 @@ void PrvCmd::PokerTurn( Client& client, Channel* channel, std::string& reason ) 
 		}
 		this->_serv._poker->addCardToCommunity();
 		if (!this->_serv._poker->getTurn() && !this->_serv._poker->getRiver()) {
-			m = "The Turn: " + this->_serv._poker->getCommunity() + "\r\n";
+			m = MSG_COLOR "The Turn: " + this->_serv._poker->getCommunity() + RESET_COLOR "\r\n";
 			this->_serv._poker->setTurn(true);
 		}
 		else if (!this->_serv._poker->getRiver()) {
-			m = "The River: " + this->_serv._poker->getCommunity() + "\r\n";
+			m = MSG_COLOR "The River: " + this->_serv._poker->getCommunity() + RESET_COLOR "\r\n";
 			this->_serv._poker->setRiver(true);
 		}
 		sendToChannelClient(channel, m);
@@ -119,9 +121,9 @@ void PrvCmd::PokerTurn( Client& client, Channel* channel, std::string& reason ) 
 	m = "Check for: " + itoa(this->_serv._poker->getBet()) + " or Fold:";
 	if (next->getMoney() > this->_serv._poker->getBet())
 		m += " or Ask:";
-	m += "\r\n";
+	m += "\n\r\n";
 	send(next->getFd(), m.c_str(), m.size(), 0);
-	m = "You have: " + itoa(next->getMoney()) + "\r\n";
+	m = RPL_COLOR "You have: " RESET_COLOR + itoa(next->getMoney()) + "\n\r\n";
 	send(next->getFd(), m.c_str(), m.size(), 0);
 }
 

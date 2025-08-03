@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 20:11:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 20:02:42 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 19:15:57 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ int Poker::straightFlush( std::vector<Card> com ) {
 			ref = vals[i];
 		}
 	}
-	return (-1);
+	return (false);
 }
 
 int Poker::square( std::vector<Card> com ) {
@@ -132,7 +132,7 @@ int Poker::flush( std::vector<Card> com ) {
 }
 
 int Poker::straight( std::vector<Card> com ) {
-	
+
 	std::vector<int> values;
 
 	for (size_t i = 0; i < com.size(); ++i)
@@ -157,7 +157,7 @@ int Poker::straight( std::vector<Card> com ) {
 		}
 		ref = values[i];
 	}
-	return (-1);
+	return (false);
 }
 
 int Poker::threeOfKind( std::vector<Card> com ) {
@@ -234,7 +234,7 @@ Client* Poker::checkHands( void ) {
 		hand.push_back(it->second.first->getCards().first);
 		hand.push_back(it->second.first->getCards().second);
 		for (i = 0; i < 9; ++i) {
-			if ((this->*comb[i])(hand) != -1) {
+			if ((this->*comb[i])(hand)) {
 				break ;
 			}
 		}
@@ -380,7 +380,7 @@ int Poker::getBet( void ) {
 }
 
 int Poker::getFdPlayer( void ) {
-	return (_fdPlayer);
+	return (_firstPlayer);
 }
 
 std::string& Poker::getWinRound( void ) {
@@ -389,7 +389,6 @@ std::string& Poker::getWinRound( void ) {
 
 Client* Poker::getNextPlayer( int fd ) {
 	if (_players.size() <= 1) {
-		std::cout << "?" << std::endl;
 		return (NULL);
 	}
 
@@ -399,7 +398,6 @@ Client* Poker::getNextPlayer( int fd ) {
 		std::cout << at->second.second << std::endl;
 	}
 	if (it == _players.end()) {
-		std::cout << "??" << std::endl;
 		return (NULL);
 	}
 
@@ -414,7 +412,5 @@ Client* Poker::getNextPlayer( int fd ) {
 			return (it->second.first);
 		}
 	} while (start != it);
-
-	std::cout << "???" << std::endl;
 	return (NULL);
 }
