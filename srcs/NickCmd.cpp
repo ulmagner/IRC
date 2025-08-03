@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 16:05:31 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/30 20:27:40 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 23:01:20 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ void NickCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 2) {
 		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw NickCmd::FormatException();
 	}
 	if (client.getPass().empty())
@@ -31,6 +32,7 @@ void NickCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() == 1) {
 		m = ERR_NONICKNAMEGIVEN();
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw NickCmd::FormatException();
 	}
 	client.setNick(this->_tokens[1]);
@@ -40,6 +42,7 @@ void NickCmd::executeCmd( Client& client ) {
 			client.setNick("");
 			m = ERR_NICKNAMEINUSE(this->_tokens[1]);
 			send(client.getFd(), m.c_str(), m.size(), 0);
+			std::cout << m << std::endl;
 			throw NickCmd::ErrorException();
 		}
     }

@@ -6,16 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:20:56 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 17:38:23 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:54:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef InviteCmd_hpp
 #define InviteCmd_hpp
 #include "ACmd.hpp"
-
-class Serv;
-class Client;
 
 class InviteCmd : public ACmd{
     private:

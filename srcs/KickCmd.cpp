@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/01 15:03:11 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 23:07:41 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,13 @@ void KickCmd::executeCmd( Client& client ) {
 		throw KickCmd::FormatException();
 	}
 	std::vector<std::string> cl_name = split(this->_tokens[2], ',');
-	std::string reason = (this->_tokens.size() == 4) ? this->_tokens[3] : "because";
+	std::string reason = (this->_tokens.size() > 4) ? this->_tokens[3] : "";
+	// if (reason.empty() || reason[0] != ':')
+		// reason = ":" + reason;
+	for (size_t i = 4; i < this->_tokens.size(); ++i) {
+		reason += " ";
+		reason += this->_tokens[i];
+	}
 	std::vector<std::string>::const_iterator cl_it = cl_name.begin();
 	for (;cl_it != cl_name.end(); ++cl_it) {
 		Client* cl = channel->getClientByName(*cl_it);
@@ -65,8 +71,10 @@ void KickCmd::executeCmd( Client& client ) {
 		}
 		channel->removeClient(cl->getNick());
 		m = KICK_MSG(client.getNick(), client.getUser(), channel->getName(), *cl_it, reason);
+		std::cout << m << std::endl;
 		sendToChannelClient(channel, m);
 		m = KICK_MSG(client.getNick(), client.getUser(), channel->getName(), *cl_it, reason);
+		std::cout << m << std::endl;
 		send(cl->getFd(), m.c_str(), m.size(), 0);
 	}
 }

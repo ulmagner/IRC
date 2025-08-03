@@ -6,16 +6,13 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:07 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/29 17:38:34 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 17:54:14 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KickCmd_hpp
 #define KickCmd_hpp
 #include "ACmd.hpp"
-
-class Serv;
-class Client;
 
 class KickCmd : public ACmd{
     private:

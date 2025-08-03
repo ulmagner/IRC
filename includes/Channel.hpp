@@ -6,17 +6,19 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:47:28 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 03:14:49 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/02 23:57:12 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef Channel_hpp
 #define Channel_hpp
+#pragma once
 #include <string>
 #include <exception>
 #include <iostream>
 #include <map>
 #include <vector>
+#include <utility>
 #include "Client.hpp"
 
 class Client;
@@ -32,6 +34,7 @@ class Channel {
         std::map<int, std::pair<Client*, int> > _clientConnected;
         std::vector<Client*> _inviteClient;
         bool _isPlaying;
+        int _chanLim;
     public:
         Channel( std::string& name, std::string& key, Client& client );
         ~Channel( void );
@@ -61,9 +64,11 @@ class Channel {
         void bot();
         void eraseFromInvite( const std::string& nick );
         bool hasPerm( Client& client ) const;
+        int getLim( void );
+        void setLim( int l );
         const Client* getInvite( const std::string& name ) const;
-        template<typename T>
-        Client* getClientByName( const T& t );
+        Client* getClientByName( const std::string& name );
+        Client* getClientByFd( int fd );
         class FormatException : public std::exception
         {
             public:
@@ -80,7 +85,5 @@ class Channel {
                 virtual const char* what() const throw();
         };
 };
-
-#include "Channel.tpp"
 
 #endif //Channel_hpp

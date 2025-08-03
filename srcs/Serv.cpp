@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 11:06:30 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 19:31:34 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@
 #include "TopicCmd.hpp"
 #include "PartCmd.hpp"
 #include "PrvCmd.hpp"
+#include "PingCmd.hpp"
 #include "ModeCmd.hpp"
 
-Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0) {
+Serv::Serv( char **arg ) : _name("IRC_DEFAULT"), _socketfd(0), _epollfd(0), _poker(NULL) {
     this->_port = this->isValidPort(arg[1]);
     this->isValidPass(arg[2]);
     this->_pass = arg[2];
@@ -53,12 +54,12 @@ void Serv::shutdown( void ) {
         int fd = it->second.getFd();
         if (fd != this->_socketfd && fd != -1) {
             close(fd);
-            fd = -1;
         }
     }
     for (size_t i = 0; i < this->_channels.size(); ++i) {
         delete this->_channels[i];
     }
+	delete this->_poker;
     this->_channels.clear();
     this->_channels.~vector();
     this->_connections.clear();
@@ -70,54 +71,48 @@ void Serv::shutdown( void ) {
     this->_socketfd = -1;
 }
 
-ACmd*	Serv::pass( std::vector<std::string> tokens )
-{
+ACmd*	Serv::pass( std::vector<std::string> tokens ) {
 	return (new PassCmd(tokens, *this));
 }
 
-ACmd*	Serv::nick( std::vector<std::string> tokens )
-{
+ACmd*	Serv::nick( std::vector<std::string> tokens ) {
 	return (new NickCmd(tokens, *this));
 }
 
-ACmd*	Serv::user( std::vector<std::string> tokens )
-{
+ACmd*	Serv::user( std::vector<std::string> tokens ) {
 	return (new UserCmd(tokens, *this));
 }
 
-ACmd*	Serv::join( std::vector<std::string> tokens )
-{
+ACmd*	Serv::join( std::vector<std::string> tokens ) {
 	return (new JoinCmd(tokens, *this));
 }
 
-ACmd*	Serv::kick( std::vector<std::string> tokens )
-{
+ACmd*	Serv::kick( std::vector<std::string> tokens ) {
 	return (new KickCmd(tokens, *this));
 }
 
-ACmd*	Serv::invite( std::vector<std::string> tokens )
-{
+ACmd*	Serv::invite( std::vector<std::string> tokens ) {
 	return (new InviteCmd(tokens, *this));
 }
 
-ACmd*	Serv::topic( std::vector<std::string> tokens )
-{
+ACmd*	Serv::topic( std::vector<std::string> tokens ) {
 	return (new TopicCmd(tokens, *this));
 }
 
-ACmd*	Serv::part( std::vector<std::string> tokens )
-{
+ACmd*	Serv::part( std::vector<std::string> tokens ) {
 	return (new PartCmd(tokens, *this));
 }
 
-ACmd*	Serv::prv( std::vector<std::string> tokens )
-{
+ACmd*	Serv::prv( std::vector<std::string> tokens ) {
 	return (new PrvCmd(tokens, *this));
 }
 
-ACmd*	Serv::mode( std::vector<std::string> tokens )
-{
+ACmd*	Serv::mode( std::vector<std::string> tokens ) {
 	return (new ModeCmd(tokens, *this));
+}
+
+ACmd*	Serv::ping( std::vector<std::string> tokens ) {
+    return (new PingCmd(tokens, *this));
 }
 
 const std::string& Serv::getPass( void ) const {
@@ -128,12 +123,12 @@ const std::map<int, Client>& Serv::getConnections( void ) const {
     return (this->_connections);
 }
 
-std::vector<Channel*>& Serv::getChannels( void ){
+std::vector<Channel*>& Serv::getChannels( void ) {
     return (this->_channels);
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE", "PING"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -157,6 +152,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::part,
         &Serv::prv,
         &Serv::mode,
+        &Serv::ping,
 	};
 
     if (!client.getAuth()) {
@@ -170,6 +166,7 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         if (!client.getAuth() && i >= 3 && auth[i].compare( tokens[0] ) == 0) {
             std::string m = ERR_NOTREGISTERED(client.getNick());
             send(client.getFd(), m.c_str(), m.size(), 0);
+            std::cout << m << std::endl;
             throw Serv::NotAuthYetException();
         }
         if (client.getAuth() == true && i < 3 && auth[i].compare( tokens[0] ) == 0) {
@@ -179,8 +176,6 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
             return (this->*cmds[i])(tokens);
         }
     }
-    // std::string m = ERR_(client.getNick());
-    // send(client.getFd(), m.c_str(), m.size(), 0);
     throw Serv::CmdNotFoundException();
     return (NULL);
 }
@@ -278,20 +273,28 @@ void Serv::run( void ) {
                                     std::string str = oss.str();
                                     m = RPL_WELCOME(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_YOURHOST(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_CREATED(client.getNick(), str);
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MYINFO(client.getNick(), "1.0.0", "", "");
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_YOUREOPER(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MOTDSTART(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_MOTD(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                     m = RPL_ENDOFMOTD(client.getNick());
                                     send(client.getFd(), m.c_str(), m.size(), 0);
+				                    std::cout << m << std::endl;
                                 }
                             }
                         }

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 17:21:30 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/07/31 11:35:31 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 00:25:09 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,23 +22,27 @@ void InviteCmd::executeCmd( Client& client ) {
 	if (this->_tokens.size() < 3) {
 		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	std::string name = this->_tokens[2];
 	if (name[0] != '#') {
 		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	Channel* channel = this->_serv.getChannelByName(name);
 	if (!channel) {
 		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	if (channel && channel->getClients().size() < 1) {
 		m = ERR_NOSUCHCHANNEL(client.getNick(), name);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	std::map<int, std::pair<Client *, int> >& cl = channel->getClients();
@@ -48,44 +52,48 @@ void InviteCmd::executeCmd( Client& client ) {
 	for (;it != cl.end(); ++it) {
 		if (it->second.first->getFd() == client.getFd()) {
 			is_i = 1;
-			if (it->first == 1) {
+			if (it->second.second == 1) {
 				is_i = 2;
 			}
 		}
 		if (it->second.first->getNick() == this->_tokens[1]) {
 			m = ERR_USERONCHANNEL(client.getNick(), this->_tokens[1], channel->getName());
 			send(client.getFd(), m.c_str(), m.size(), 0);
+			std::cout << m << std::endl;
 			throw InviteCmd::FormatException();
 		}
 	}
 	if (!is_i) {
 		m = ERR_NOTONCHANNEL(client.getNick(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 	}
 	else if (is_i == 1 && channel->hasMode("+i")) {
 		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	toInvite = this->_serv.getClientByName(this->_tokens[1]);
 	if (!toInvite) {
 		m = ERR_NOSUCHNICK(client.getNick(), this->_tokens[1]);
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	if (channel->getClientByName(toInvite->getNick())) {
 		m = ERR_USERONCHANNEL(client.getNick(), toInvite->getNick(), channel->getName());
 		send(client.getFd(), m.c_str(), m.size(), 0);
+		std::cout << m << std::endl;
 		throw InviteCmd::FormatException();
 	}
 	channel->addToInvite(*toInvite);
-	// std::string msgRpl = "";
-	// msgRpl = ":" + this->_serv._name + " 341 " + client.getNick() + " " + toInvite->getNick() + " " + channel->getName() + "\r\n";
 	m = RPL_INVITING(client.getNick(), toInvite->getNick(), channel->getName());
 	send(client.getFd(), m.c_str(), m.size(), 0);
-	// msgRpl = ":" + client.getPrefix() + " INVITE " + toInvite->getNick() + " :" + channel->getName() + "\r\n";
+	std::cout << m << std::endl;
 	m = SEND_INVITE(client.getNick(), client.getUser(), toInvite->getNick(), channel->getName());
 	send(toInvite->getFd(), m.c_str(), m.size(), 0);
+	std::cout << m << std::endl;
 }
 
 const char* InviteCmd::FormatException::what() const throw()
