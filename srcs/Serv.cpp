@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 23:07:18 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 18:21:02 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void Serv::shutdown( void ) {
         int fd = it->second.getFd();
         if (fd != this->_socketfd && fd != -1) {
             close(fd);
-            fd = -1;
         }
     }
     for (size_t i = 0; i < this->_channels.size(); ++i) {

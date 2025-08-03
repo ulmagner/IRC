@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 13:51:29 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 23:58:03 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/03 18:30:46 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ const std::string& Channel::getTopicSetter( void ) const {
 
 bool Channel::hasMode( const std::string& mode ) const {
 	std::vector<std::string>::const_iterator it = this->_mode.begin();
-	for(;it != this->_mode.end();) {
+	for(;it != this->_mode.end(); ++it) {
 		if (*it == mode)
 			return (true);
 	}
