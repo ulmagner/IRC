@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/29 12:06:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/02 23:09:00 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/12 18:32:49 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void TopicCmd::executeCmd( Client& client ) {
 			std::ostringstream oss;
 			oss << channel->getTopicSetTime();
 			std::string str = oss.str();
-			this->_serv.sendToClient(client, "333", " " + name + " " + channel->getTopicSetter() + " " + str);
+			this->_serv.sendToClient(client, "333", " " + name + " " + channel->getTopicSetter() + " " + str + "\r\n");
 			std::cout << m << std::endl;
 		}
 		return ;

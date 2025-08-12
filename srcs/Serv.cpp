@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/12 16:57:33 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/12 18:11:47 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ Serv::~Serv( void ) {
 }
 
 void Serv::createTcpServerSocket( void ) {
-    this->_socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    this->_socketfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
@@ -216,7 +216,7 @@ std::vector<std::string> splitd( const std::string& s, char delimiter, Client& c
     std::vector<std::string> tokens;
     std::stringstream ss(s);
     std::string word;
-    if (client._d == 0) {
+    if (client._d == 0 && !client._buff.empty()) {
         client._buff.clear();
     }
 	if (s.find(delimiter) == std::string::npos) {
@@ -233,6 +233,8 @@ std::vector<std::string> splitd( const std::string& s, char delimiter, Client& c
 
 void Serv::run( void ) {
     createTcpServerSocket();
+    int f = 1;
+    setsockopt(this->_socketfd, SOL_SOCKET, SO_REUSEADDR, &f, sizeof(f));
     fcntl(this->_socketfd, F_SETFL, O_NONBLOCK);
     struct epoll_event ev, events[MAX_EVENTS];
     int nfds, clientSocket;
@@ -351,6 +353,7 @@ void Serv::run( void ) {
                         catch (const std::exception& e) {
                             std::cout << e.what() << std::endl;
                         }
+                        client._buff.clear();
                         delete cmd;
                     }
                 }
