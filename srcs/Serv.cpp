@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/03 19:31:34 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/12 16:57:33 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,13 +131,29 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
 	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE", "PING"};
     std::stringstream ss(buffer);
     std::string word;
-    std::vector<std::string> tokens;
+    const std::string s = buffer;
+    std::vector<std::string> tokens = client._buff;
+
+    // client._d = (s.find('\r') == std::string::npos) ? 1 : 0;
+    std::cout << client._d << std::endl;
+    // if (client._d == 1) {
+        // tokens = client._buff;
+    // }
+    // else
+        // client._buff.clear();
 
     while (ss >> word) {
         std::cout << word;
         tokens.push_back(word);
     }
     std::cout << std::endl;
+    client._buff = tokens;
+    for (size_t j = 0; j < client._buff.size(); ++j) {
+        std::cout << " [a] " << tokens[j] << std::endl;
+    }
+    if (client._d == 1) {
+        return (NULL);
+    }
     if (tokens.empty()) {
         throw std::runtime_error("Empty command");
     }
@@ -194,6 +210,25 @@ Client* Serv::getClientByName( const std::string& name ) {
             return &(it->second);
     }
     return (NULL);
+}
+
+std::vector<std::string> splitd( const std::string& s, char delimiter, Client& client) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(s);
+    std::string word;
+    if (client._d == 0) {
+        client._buff.clear();
+    }
+	if (s.find(delimiter) == std::string::npos) {
+        client._d = 1;
+		tokens.push_back(s);
+		return (tokens);
+	}
+    client._d = 0;
+	while (std::getline(ss, word, delimiter)) {
+        tokens.push_back(word);
+    }
+    return (tokens);
 }
 
 void Serv::run( void ) {
@@ -254,15 +289,30 @@ void Serv::run( void ) {
                     this->_connections.erase(events[n].data.fd);
                 }
                 else {
+                    Client &client = this->getClientByFd(events[n].data.fd);
                     std::string input(buffer, bytes);
-                    std::vector<std::string> commands = split(input, '\r');
+                    std::vector<std::string> commands = splitd(input, '\r', client);
+                    // for (size_t j = 0; j < commands.size(); ++j) {
+                    //     std::cout << " [a] " << client._buff[j] << std::endl;
+                    //     std::cout << " [b] " << client._buff.size() << "|" << client._d << std::endl;
+                    // }
+                    // if (client._d == 1) {
+                    //     continue ;
+                    // }
+                    std::cout << "c " << commands.size() << std::endl;
                     for (size_t i = 0; i < commands.size(); ++i) {
-                        if (commands[i].empty())
-                            continue;
+                        std::cout << "a " << commands[i] << std::endl;
+                        if (commands[i].empty() || commands[i].size() == 1) {
+                            client._buff.clear();
+                            continue ;
+                        }
                         ACmd* cmd = NULL;
                         try {
-                            Client& client = this->getClientByFd(events[n].data.fd);
                             cmd = Serv::getCmd(commands[i].c_str(), client);
+                            if (!cmd) {
+                                // delete cmd;
+                                break ;
+                            }
                             cmd->executeCmd(client);
                             if (!client.getAuth()) {
                                 client.setAuth(client.checkAuth());

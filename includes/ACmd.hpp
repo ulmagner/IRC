@@ -19,6 +19,7 @@
 #include <fstream>
 #include <exception>
 #include <deque>
+#include <cstring>
 #include <vector>
 #include <list>
 #include <algorithm>

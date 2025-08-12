@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:55:09 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/03 19:22:46 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/11 15:10:07 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@
 
 
 // RPL
-#define RPL_WELCOME(client) ":localhost 001 " + client + " :" RPL_COLOR "Welcome to the KEK Network, " + client + "" RESET_COLOR "\r\n"
-#define RPL_YOURHOST(client) ":localhost 002 " + client + " :" RPL_COLOR "Your host is KEKservername, running version 3.0" RESET_COLOR "\r\n"
+#define RPL_WELCOME(client) ":localhost 001 " + client + " :" RPL_COLOR "Welcome to the Poker Network, " + client + "" RESET_COLOR "\r\n"
+#define RPL_YOURHOST(client) ":localhost 002 " + client + " :" RPL_COLOR "Your host is servername, running version 3.0" RESET_COLOR "\r\n"
 #define RPL_CREATED(client, datetime) ":localhost 003 " + client + " :" RPL_COLOR "This server was created " + datetime + "" RESET_COLOR "\r\n"
-#define RPL_MYINFO(client, version, usermodes, chanmodes)":localhost 004 " + client + " :" RPL_COLOR "KEKservername " + version + " " + usermodes + " " + chanmodes + "" RESET_COLOR "\r\n"
+#define RPL_MYINFO(client, version, usermodes, chanmodes)":localhost 004 " + client + " :" RPL_COLOR "servername " + version + " " + usermodes + " " + chanmodes + "" RESET_COLOR "\r\n"
 #define RPL_YOUREOPER(client) ":localhost 381 " + client + " :" RPL_COLOR " You are now an IRC operator" RESET_COLOR "\r\n"
-#define RPL_MOTDSTART(client)":localhost 375 " + client + " :" RPL_COLOR "- KEKservername Message of the day - " RESET_COLOR "\r\n"
-#define RPL_MOTD(client)":localhost 372 " + client + " :" RPL_COLOR "KEK MOTD\n    OIIIIIIII\n    END MOTD" RESET_COLOR "\r\n"
+#define RPL_MOTDSTART(client)":localhost 375 " + client + " :" RPL_COLOR "- servername Message of the day - " RESET_COLOR "\r\n"
+#define RPL_MOTD(client)":localhost 372 " + client + " :" RPL_COLOR "Poker MOTD\n    ||||||||||||||\\\n    END MOTD" RESET_COLOR "\r\n"
 #define RPL_ENDOFMOTD(client)":localhost 376 " + client + " :" RPL_COLOR "End of /MOTD command." RESET_COLOR "\r\n"
 
 #define RPL_NAMREPLY(client, channel, users) ":localhost 353 " + client + " = " + channel + " :" + users + "\r\n"

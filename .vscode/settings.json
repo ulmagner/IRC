@@ -60,6 +60,7 @@
 		"text_encoding": "cpp",
 		"cinttypes": "cpp",
 		"variant": "cpp",
-		"*.tpp": "cpp"
+		"*.tpp": "cpp",
+		"iomanip": "cpp"
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 19:07:20 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/03 19:06:29 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/11 15:14:08 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,10 @@ void PrvCmd::PokerTurn( Client& client, Channel* channel, std::string& reason ) 
 		client.bet(bet);
 		this->_serv._poker->setMoney(bet);
 	}
-	else if (reason.substr(1) == "Ask") {
-		client.bet(stringToInt(this->_tokens[3]));
-		this->_serv._poker->setMoney(stringToInt(this->_tokens[3]));
-		this->_serv._poker->setBet(stringToInt(this->_tokens[3]));
+	else if (strncmp(reason.substr(1).c_str(), "Ask", 3)) {
+		client.bet(stringToInt(reason.substr(5)));
+		this->_serv._poker->setMoney(stringToInt(reason.substr(5)));
+		this->_serv._poker->setBet(stringToInt(reason.substr(5)));
 	}
 	else {
 		return ;
