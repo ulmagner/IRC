@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/13 18:21:45 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/13 18:23:58 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,6 @@ void Serv::run( void ) {
                 this->_connections.insert(std::make_pair(clientSocket, Client(clientSocket)));
                 if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &ev) == -1) {
                     perror("epoll_ctl: clientSocket");
-                    // exit(EXIT_FAILURE);
                     continue ;
                 }
             }
