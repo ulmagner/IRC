@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 11:03:54 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/12 15:03:13 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/13 17:56:07 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ class Client {
         std::pair<Card, Card> _cards;
         bool _playing;
     public:
-        std::vector<std::string> _buff;
+        // std::vector<std::string> _buff;
+        std::string _buff;
         int _d;
         Client( int fd );
         ~Client( void );

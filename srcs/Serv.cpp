@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/12 18:11:47 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/13 18:21:45 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,29 +131,12 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
 	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE", "PING"};
     std::stringstream ss(buffer);
     std::string word;
-    const std::string s = buffer;
-    std::vector<std::string> tokens = client._buff;
-
-    // client._d = (s.find('\r') == std::string::npos) ? 1 : 0;
-    std::cout << client._d << std::endl;
-    // if (client._d == 1) {
-        // tokens = client._buff;
-    // }
-    // else
-        // client._buff.clear();
-
+    std::vector<std::string> tokens;
     while (ss >> word) {
         std::cout << word;
         tokens.push_back(word);
     }
     std::cout << std::endl;
-    client._buff = tokens;
-    for (size_t j = 0; j < client._buff.size(); ++j) {
-        std::cout << " [a] " << tokens[j] << std::endl;
-    }
-    if (client._d == 1) {
-        return (NULL);
-    }
     if (tokens.empty()) {
         throw std::runtime_error("Empty command");
     }
@@ -212,19 +195,14 @@ Client* Serv::getClientByName( const std::string& name ) {
     return (NULL);
 }
 
-std::vector<std::string> splitd( const std::string& s, char delimiter, Client& client) {
+std::vector<std::string> splitd( const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(s);
     std::string word;
-    if (client._d == 0 && !client._buff.empty()) {
-        client._buff.clear();
-    }
 	if (s.find(delimiter) == std::string::npos) {
-        client._d = 1;
 		tokens.push_back(s);
 		return (tokens);
 	}
-    client._d = 0;
 	while (std::getline(ss, word, delimiter)) {
         tokens.push_back(word);
     }
@@ -292,27 +270,24 @@ void Serv::run( void ) {
                 }
                 else {
                     Client &client = this->getClientByFd(events[n].data.fd);
-                    std::string input(buffer, bytes);
-                    std::vector<std::string> commands = splitd(input, '\r', client);
-                    // for (size_t j = 0; j < commands.size(); ++j) {
-                    //     std::cout << " [a] " << client._buff[j] << std::endl;
-                    //     std::cout << " [b] " << client._buff.size() << "|" << client._d << std::endl;
-                    // }
-                    // if (client._d == 1) {
-                    //     continue ;
-                    // }
+                    client._buff += buffer;
+                    std::cout << "input: " << client._buff << std::endl;
+                    if (client._buff.find('\r') == std::string::npos) {
+                        continue ;
+                    }
+                    std::vector<std::string> commands = split(client._buff, '\r');
                     std::cout << "c " << commands.size() << std::endl;
                     for (size_t i = 0; i < commands.size(); ++i) {
                         std::cout << "a " << commands[i] << std::endl;
                         if (commands[i].empty() || commands[i].size() == 1) {
                             client._buff.clear();
+                            client._buff = "";
                             continue ;
                         }
                         ACmd* cmd = NULL;
                         try {
                             cmd = Serv::getCmd(commands[i].c_str(), client);
                             if (!cmd) {
-                                // delete cmd;
                                 break ;
                             }
                             cmd->executeCmd(client);
@@ -354,6 +329,7 @@ void Serv::run( void ) {
                             std::cout << e.what() << std::endl;
                         }
                         client._buff.clear();
+                        client._buff = "";
                         delete cmd;
                     }
                 }
