@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 20:11:46 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/03 19:15:57 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:53:01 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,6 +320,7 @@ void Poker::resetTurn( void ) {
 	this->_fdPlayer = this->_firstPlayer;
 	this->_turn = false;
 	this->_river = false;
+	this->_bet = 5;
 }
 
 void Poker::addCardToCommunity( void ) {

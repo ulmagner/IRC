@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 19:07:20 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/13 18:30:07 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:53:13 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,13 @@ void PrvCmd::PokerTurn( Client& client, Channel* channel, std::string& reason ) 
 	else if (!strncmp(reason.substr(1).c_str(), "Ask", 3)) {
 		client.bet(stringToInt(reason.substr(5)));
 		this->_serv._poker->setMoney(stringToInt(reason.substr(5)));
-		this->_serv._poker->setBet(stringToInt(reason.substr(5)));
+		this->_serv._poker->setBet(stringToInt(reason.substr(5)) - this->_serv._poker->getBet());
 	}
-	else {
+	else if (reason.substr(1) == "Stop") {
+		m = MSG_COLOR + client.getNick() + "has stopped the Poker\n\n \"!bot\" to start Poker" + RESET_COLOR "\n\r\n";
+		sendToChannelClient(channel, m);
+		channel->setPlaying(false);
+		delete this->_serv._poker;
 		return ;
 	}
 	client.setPlaying(false);
