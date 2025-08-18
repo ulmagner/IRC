@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 14:30:32 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/17 22:00:04 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/18 03:39:10 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void sendToChannelClient( Channel* channel, std::string& msg ) {
 
 void KickCmd::executeCmd( Client& client ) {
 	std::string m = "";
-	if (this->_tokens.size() < 2) {
+	if (this->_tokens.size() <= 2) {
 		m = ERR_NEEDMOREPARAMS(client.getNick(), this->_tokens[0]);
 		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
@@ -45,6 +45,7 @@ void KickCmd::executeCmd( Client& client ) {
 	}
 	if (!channel->hasPerm(client)) {
 		m = ERR_CHANOPRIVSNEEDED(client.getNick(), client.getUser(), channel->getName());
+		std::cout << m << std::endl;
 		send(client.getFd(), m.c_str(), m.size(), 0);
 		throw KickCmd::FormatException();
 	}

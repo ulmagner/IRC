@@ -6,7 +6,7 @@
 /*   By: ulmagner <ulmagner@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/15 11:58:33 by ulmagner          #+#    #+#             */
-/*   Updated: 2025/08/13 18:23:58 by ulmagner         ###   ########.fr       */
+/*   Updated: 2025/08/18 03:21:02 by ulmagner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ std::vector<Channel*>& Serv::getChannels( void ) {
 }
 
 ACmd* Serv::getCmd( const char* buffer, Client& client ) {
-	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PART", "PRIVMSG", "MODE", "PING"};
+	std::string auth[] = {"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "PRIVMSG", "MODE", "PING"};
     std::stringstream ss(buffer);
     std::string word;
     std::vector<std::string> tokens;
@@ -148,7 +148,6 @@ ACmd* Serv::getCmd( const char* buffer, Client& client ) {
         &Serv::kick,
         &Serv::invite,
         &Serv::topic,
-        &Serv::part,
         &Serv::prv,
         &Serv::mode,
         &Serv::ping,
