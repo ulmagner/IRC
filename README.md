@@ -1,2 +1,2 @@
 # IRC
-Internet Relay Chat
+Internet Relay Chat with a Poker bot
